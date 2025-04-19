@@ -3,26 +3,26 @@
 
 				window.siteConfig = {
     "site": {
-        "name": "Scale Forged",
+        "name": "Scale Forged 3D",
         "tagline": "Making Dreams Come True",
         "logo": "logo.jpg",
         "heroBackground": "hero-bg.jpg",
         "showHeroText": false,
-        "email": "scaleforged@sitepackages.net",
+        "email": "contact@scaleforged3d.com",
         "socialLinks": {
             "discord": "https://linktr.ee/scaleforged",
             "youtube": "https://www.youtube.com/@ScaleForged3D",
             "tiktok": ""
         },
-        "copyright": "© 2025 Scale Forged. All rights reserved."
+        "copyright": "© 2025 Scale Forged 3D. All rights reserved."
     },
     "colors": {
-        "primary": "#0277bd",
-        "secondary": "#4fc3f7",
-        "tertiary": "#00796b",
-        "highlight": "#26c6da",
-        "alert": "#e53935",
-        "background": "#0a1519",
+        "primary": "#003b6f",
+        "secondary": "#00ff9f",
+        "tertiary": "#6a0dad",
+        "highlight": "#ffd700",
+        "alert": "#ff5722",
+        "background": "#0a0e17",
         "text": "#ffffff"
     },
     "fonts": {
@@ -295,9 +295,11 @@
         }
     ],
     "advanced": {
+        "enableShop": true,
         "enableLocalStorage": true,
         "checkoutMethod": "email",
         "externalCheckoutUrl": "",
-        "analyticsId": ""
+        "analyticsId": "",
+        "orderEmail": "order@scaleforged3d.com"
     }
 };
