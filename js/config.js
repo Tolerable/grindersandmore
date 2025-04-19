@@ -62,13 +62,13 @@
             {
                 "name": "Rast-Alf-Arian",
                 "title": "Co-Owner, Back up Production Operator, US Division Lead, Sales Rep",
-                "bio": "Hi I'm Michael, the current CEO for Scale Forged 3D Printing and I'm the back up production operator for Scale Forged 3D Printing and the main branch in the United States. I also manage the Companies Youtube channel. and do the majority of sales for Scale Forged 3D Printing. I am also responsible for all the Networking involved",
+                "bio": "CEO for Scale Forged 3D Printing and I'm the back up production operator for Scale Forged 3D Printing and the main branch in the United States. I also manage the Companies Youtube channel. and do the majority of sales for Scale Forged 3D Printing. I am also responsible for all the Networking involved",
                 "image": "team2.jpg"
             },
             {
                 "name": "Brooklyn",
                 "title": "Co-Owner, COO, Division Lead, Social Media Manager",
-                "bio": "Hi I'm George, I am the current COO of Scale Forged 3D Printing. I oversee Production whether it be in the USA or any of our other Divisions/Branches. I also manage all our socials for Scale Forged 3D Printing. Languages known : English, Dutch, and German",
+                "bio": "COO of Scale Forged 3D Printing. I oversee Production whether it be in the USA or any of our other Divisions/Branches. I also manage all our socials for Scale Forged 3D Printing. Languages known : English, Dutch, and German",
                 "image": "team1.jpg"
             }
         ],
