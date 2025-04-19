@@ -112,81 +112,83 @@ document.addEventListener('DOMContentLoaded', function() {
 		return errorLog;
 	}
     
-    // Function to check if config exists - ONLY RUN if not in preview mode
-    function checkConfig() {
-        if (typeof window.siteConfig === 'undefined') {
-            // Try to load from /js/ folder if not already loaded
-            const configScript = document.createElement('script');
-            configScript.src = 'js/config.js';
-            configScript.onload = function() {
-                console.log('Successfully loaded config.js from /js/ folder');
-                initializeSite();
-            };
-            configScript.onerror = function() {
-                console.error('Failed to load config.js from /js/ folder');
-                // Create fallback config
-                window.siteConfig = {
-                    // Default config values (unchanged)
-                    site: {
-                        name: "Site is Loading...",
-                        tagline: "Configuration Issue",
-                        logo: "",
-                        email: "",
-                        copyright: "© " + new Date().getFullYear()
-                    },
-                    colors: {
-                        primary: "#003B6F",
-                        secondary: "#00FF9F",
-                        tertiary: "#6A0DAD",
-                        highlight: "#FFD700", 
-                        alert: "#FF5722",
-                        background: "#0A0E17",
-                        text: "#FFFFFF"
-                    },
-                    fonts: {
-                        heading: "'Orbitron', sans-serif",
-                        body: "'Exo 2', sans-serif"
-                    },
-                    terminology: {
-                        category1: "Premium",
-                        category2: "Standard",
-                        category3: "Special",
-                        productTerm: "Item",
-                        productPluralTerm: "Items",
-                        packTerm: "Pack",
-                        cartTerm: "Cart",
-                        soldOutLabel: "SOLD OUT",
-                        comingSoonLabel: "COMING SOON"
-                    },
-                    navigation: [],
-                    effects: {
-                        backgroundEffect: { enabled: false },
-                        specialFeature: { enabled: false }
-                    },
-                    advanced: {
-                        enableLocalStorage: true,
-                        checkoutMethod: "email"
-                    },
-                    products: {
-                        defaultPackOptions: []
-                    }
-                };
-                // Show error message
-                const errorMsg = document.createElement('div');
-                errorMsg.style.cssText = 'background:#f44336;color:white;padding:15px;margin:20px;border-radius:5px;';
-                errorMsg.innerHTML = `
-                    <h3>Configuration Error</h3>
-                    <p>The site configuration could not be loaded from either location.</p>
-                    <p>Please ensure config.js exists in the /js/ folder and is properly formatted.</p>
-                `;
-                document.body.insertBefore(errorMsg, document.body.firstChild);
-                initializeSite();
-            };
-            document.head.appendChild(configScript);
-            return false;
-        }
-        return true;
-    }
+	// Function to check if config exists - ONLY RUN if not in preview mode
+	function checkConfig() {
+		if (typeof window.siteConfig === 'undefined') {
+			// Try to load from /js/ folder if not already loaded
+			const configScript = document.createElement('script');
+			// Build path based on current location to support subfolder deployments
+			const basePath = window.location.pathname.replace(/\/[^/]*$/, '/');
+			configScript.src = basePath + 'js/config.js';
+			configScript.onload = function() {
+				console.log('Successfully loaded config.js from ' + basePath + 'js/ folder');
+				initializeSite();
+			};
+			configScript.onerror = function() {
+				console.error('Failed to load config.js from ' + basePath + 'js/ folder');
+				// Create fallback config
+				window.siteConfig = {
+					// Default config values (unchanged)
+					site: {
+						name: "Site is Loading...",
+						tagline: "Configuration Issue",
+						logo: "",
+						email: "",
+						copyright: "© " + new Date().getFullYear()
+					},
+					colors: {
+						primary: "#003B6F",
+						secondary: "#00FF9F",
+						tertiary: "#6A0DAD",
+						highlight: "#FFD700", 
+						alert: "#FF5722",
+						background: "#0A0E17",
+						text: "#FFFFFF"
+					},
+					fonts: {
+						heading: "'Orbitron', sans-serif",
+						body: "'Exo 2', sans-serif"
+					},
+					terminology: {
+						category1: "Premium",
+						category2: "Standard",
+						category3: "Special",
+						productTerm: "Item",
+						productPluralTerm: "Items",
+						packTerm: "Pack",
+						cartTerm: "Cart",
+						soldOutLabel: "SOLD OUT",
+						comingSoonLabel: "COMING SOON"
+					},
+					navigation: [],
+					effects: {
+						backgroundEffect: { enabled: false },
+						specialFeature: { enabled: false }
+					},
+					advanced: {
+						enableLocalStorage: true,
+						checkoutMethod: "email"
+					},
+					products: {
+						defaultPackOptions: []
+					}
+				};
+				// Show error message
+				const errorMsg = document.createElement('div');
+				errorMsg.style.cssText = 'background:#f44336;color:white;padding:15px;margin:20px;border-radius:5px;';
+				errorMsg.innerHTML = `
+					<h3>Configuration Error</h3>
+					<p>The site configuration could not be loaded from either location.</p>
+					<p>Please ensure config.js exists in the /js/ folder and is properly formatted.</p>
+				`;
+				document.body.insertBefore(errorMsg, document.body.firstChild);
+				initializeSite();
+			};
+			document.head.appendChild(configScript);
+			return false;
+		}
+		return true;
+	}
     
     // For normal mode, check if config exists and then initialize
     // This will only run if not in preview mode or if preview config failed to load
@@ -642,8 +644,10 @@ function applySiteConfig() {
 }
 
 // Open product modal in read-only mode (when shop is disabled)
+// Open product modal in read-only mode (when shop is disabled)
 function openProductModalReadOnly(product) {
     const modal = document.getElementById('productModal');
+    const siteConfig = window.siteConfig;
     
     document.getElementById('modalTitle').textContent = product.name;
     
@@ -718,14 +722,68 @@ function openProductModalReadOnly(product) {
         });
     }
     
-    // Hide the pack options section
-    const packOptionsSection = document.getElementById('packOptions');
-    if (packOptionsSection) {
-        packOptionsSection.style.display = 'none';
+    // Get the pack options container
+    const packOptionsContainer = document.getElementById('packOptionButtons');
+    if (!packOptionsContainer) return;
+    
+    // Clear existing content
+    packOptionsContainer.innerHTML = '';
+    
+    // Get the title element
+    const packOptionsTitle = document.getElementById('packOptionsTitle');
+    if (packOptionsTitle) {
+        packOptionsTitle.style.display = 'block';
     }
     
-    // Add view-only message if this is a physical product
-    if (product.delivery !== 'digital') {
+    // Check if this is a digital product with content
+    if (product.delivery === 'digital' && product.digitalContent) {
+        // Show digital product access button
+        if (packOptionsTitle) {
+            packOptionsTitle.textContent = 'Access Digital Content:';
+            packOptionsTitle.style.color = siteConfig.colors.highlight || '#FFD700';
+        }
+        
+        // Create access button for digital content
+        const accessButton = document.createElement('button');
+        accessButton.className = 'cta-button digital-access-btn';
+        accessButton.innerHTML = `<i class="download-icon"></i> Access Digital Content`;
+        accessButton.style.width = '100%';
+        accessButton.style.marginTop = '10px';
+        accessButton.style.padding = '12px 20px';
+        accessButton.style.display = 'flex';
+        accessButton.style.alignItems = 'center';
+        accessButton.style.justifyContent = 'center';
+        
+        // Add info text
+        const accessInfo = document.createElement('div');
+        accessInfo.className = 'digital-access-info';
+        accessInfo.innerHTML = `<p>Digital product. Click the button below to access content.</p>`;
+        accessInfo.style.marginBottom = '15px';
+        accessInfo.style.padding = '10px';
+        accessInfo.style.borderRadius = '5px';
+        accessInfo.style.backgroundColor = 'rgba(0,0,0,0.1)';
+        
+        // Add to container
+        packOptionsContainer.appendChild(accessInfo);
+        packOptionsContainer.appendChild(accessButton);
+        
+        // Add click handler
+        accessButton.addEventListener('click', function() {
+            // Open the digital content URL in a new tab
+            window.open(product.digitalContent, '_blank');
+            
+            // Close the modal
+            document.getElementById('productModal').style.display = 'none';
+        });
+    } else {
+        // For physical products
+        // Hide the pack options section if needed
+        const packOptionsSection = document.getElementById('packOptions');
+        if (packOptionsSection) {
+            packOptionsSection.style.display = 'none';
+        }
+        
+        // Add view-only message
         const viewOnlyMessage = document.createElement('div');
         viewOnlyMessage.className = 'view-only-message';
         viewOnlyMessage.innerHTML = `
@@ -738,7 +796,10 @@ function openProductModalReadOnly(product) {
         viewOnlyMessage.style.borderRadius = '5px';
         viewOnlyMessage.style.textAlign = 'center';
         
-        document.querySelector('.modal-info').appendChild(viewOnlyMessage);
+        const modalInfo = document.querySelector('.modal-info');
+        if (modalInfo) {
+            modalInfo.appendChild(viewOnlyMessage);
+        }
     }
     
     // Show modal
@@ -982,25 +1043,37 @@ function initializeCart() {
     const siteConfig = window.siteConfig;
     let cart = [];
     
-    // Check if local storage is enabled in config
-    if (siteConfig.advanced && siteConfig.advanced.enableLocalStorage) {
-        const storedCart = localStorage.getItem('siteCart');
-        if (storedCart) {
-            cart = JSON.parse(storedCart);
+    // Check if shopping is enabled
+    const shopEnabled = siteConfig.advanced && siteConfig.advanced.enableShop !== false;
+    
+    // Only proceed with cart initialization if shopping is enabled
+    if (shopEnabled) {
+        // Check if local storage is enabled in config
+        if (siteConfig.advanced && siteConfig.advanced.enableLocalStorage) {
+            const storedCart = localStorage.getItem('siteCart');
+            if (storedCart) {
+                cart = JSON.parse(storedCart);
+            }
         }
+        
+        // Update cart count
+        updateCartCount(cart);
+        
+        // Store cart in window for access in other functions
+        window.siteCart = cart;
+    } else {
+        // Still initialize empty cart for consistency
+        window.siteCart = cart;
     }
-    
-    // Update cart count
-    updateCartCount(cart);
-    
-    // Store cart in window for access in other functions
-    window.siteCart = cart;
 }
 
 // Update cart count display
 function updateCartCount(cart) {
-    const count = cart.reduce((total, item) => total + item.quantity, 0);
-    document.getElementById('cart-count').textContent = count;
+    const cartCountElement = document.getElementById('cart-count');
+    if (cartCountElement) { // Check if the element exists before updating
+        const count = cart.reduce((total, item) => total + item.quantity, 0);
+        cartCountElement.textContent = count;
+    }
 }
 
 function loadProductsFromLocalStorage() {
@@ -1137,8 +1210,8 @@ function createProductCard(product) {
 			if (shopEnabled) {
 				openProductModal(product);
 			} else if (product.delivery === 'digital' && product.digitalContent) {
-				// For digital products when shop is disabled, directly open the digital content
-				window.open(product.digitalContent, '_blank');
+				// For digital products when shop is disabled, show the modal with the digital content link
+				openProductModalReadOnly(product);
 			} else {
 				// For physical products when shop is disabled, just show product details
 				// without the ability to add to cart
