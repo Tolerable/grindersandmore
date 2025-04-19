@@ -48,7 +48,7 @@
         },
         "specialFeature": {
             "enabled": true,
-            "type": "floatingObject",
+            "type": "spotlight",
             "image": "img/floating-object.png",
             "behavior": "pulse"
         }
