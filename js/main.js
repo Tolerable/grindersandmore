@@ -567,22 +567,18 @@ function applySiteConfig() {
    // Handle hero section
    setupHeroSection();
    
-   // Set cart terminology
-   document.getElementById('cartTitle').textContent = `Your ${siteConfig.terminology.cartTerm}`;
-   document.getElementById('cartEmptyMessage').textContent = `Your ${siteConfig.terminology.cartTerm} is empty`;
+   // Check if shopping cart is enabled
+   const shopEnabled = siteConfig.advanced && siteConfig.advanced.enableShop !== false; // Default to true if not set
+   
+   // Set cart terminology only if shop is enabled
+   if (shopEnabled) {
+       document.getElementById('cartTitle').textContent = `Your ${siteConfig.terminology.cartTerm}`;
+       document.getElementById('cartEmptyMessage').textContent = `Your ${siteConfig.terminology.cartTerm} is empty`;
+   }
    
    // Set navigation
    const mainNav = document.getElementById('main-navigation');
    mainNav.innerHTML = ''; // Clear existing navigation
-   
-   // Add cart link
-   const cartLi = document.createElement('li');
-   cartLi.innerHTML = `
-       <a href="#cart" id="cart-link">
-           <span>${siteConfig.terminology.cartTerm}</span>
-           <span id="cart-count" class="cart-badge">0</span>
-       </a>
-   `;
    
    // Add navigation items from config
    siteConfig.navigation.forEach(item => {
@@ -591,8 +587,18 @@ function applySiteConfig() {
        mainNav.appendChild(li);
    });
    
-   // Add cart as the last item
-   mainNav.appendChild(cartLi);
+   // Add cart link only if shop is enabled
+   if (shopEnabled) {
+       const cartLi = document.createElement('li');
+       cartLi.id = 'cart-nav-item';
+       cartLi.innerHTML = `
+           <a href="#cart" id="cart-link">
+               <span>${siteConfig.terminology.cartTerm}</span>
+               <span id="cart-count" class="cart-badge">0</span>
+           </a>
+       `;
+       mainNav.appendChild(cartLi);
+   }
    
    // Set contact links
    const contactLinks = document.getElementById('contact-links');
@@ -625,14 +631,118 @@ function applySiteConfig() {
    // Apply custom styles from config
    applyCustomStyles();
    
-   // Set pack options title
-   document.getElementById('packOptionsTitle').textContent = `Select ${siteConfig.terminology.packTerm} Size:`;
-   
-   // Set checkout button text
-   document.getElementById('checkoutBtn').textContent = `Checkout`;
+   // Set pack options and checkout button text only if shop is enabled
+   if (shopEnabled) {
+       document.getElementById('packOptionsTitle').textContent = `Select ${siteConfig.terminology.packTerm} Size:`;
+       document.getElementById('checkoutBtn').textContent = `Checkout`;
+   }
    
    // Update filter buttons
    updateFilterButtons();
+}
+
+// Open product modal in read-only mode (when shop is disabled)
+function openProductModalReadOnly(product) {
+    const modal = document.getElementById('productModal');
+    
+    document.getElementById('modalTitle').textContent = product.name;
+    
+    // Fix main image path
+    let mainImagePath = product.image;
+    if (!mainImagePath) {
+        // If main image is empty but there are additional images, use the first one
+        if (product.additionalImages && product.additionalImages.length > 0) {
+            mainImagePath = product.additionalImages[0];
+        } else {
+            // Fallback to a placeholder
+            mainImagePath = 'img/placeholder.jpg';
+        }
+    }
+    
+    // Add img/ prefix if it doesn't exist
+    if (mainImagePath && !mainImagePath.startsWith('img/') && !mainImagePath.startsWith('/') && !mainImagePath.startsWith('http')) {
+        mainImagePath = 'img/' + mainImagePath;
+    }
+    
+    document.getElementById('modalImage').src = mainImagePath;
+    document.getElementById('modalImage').alt = product.name;
+    document.getElementById('modalType').textContent = product.type;
+    document.getElementById('modalRating').textContent = product.rating || 'N/A';
+    document.getElementById('modalOrigin').textContent = product.origin || 'Various';
+    document.getElementById('modalRarity').textContent = product.rarity || 'Standard';
+    document.getElementById('modalVariety').textContent = product.variety || 'Premium';
+    document.getElementById('modalDescription').textContent = product.description;
+    document.getElementById('modalDetails').textContent = product.details || 'No additional details available.';
+    document.getElementById('modalNotes').textContent = product.notes || 'No special notes.';
+    
+    // Set up thumbnails gallery
+    const thumbnailsContainer = document.getElementById('modalThumbnails');
+    thumbnailsContainer.innerHTML = '';
+
+    // Add these lines to set the alignment directly
+    thumbnailsContainer.style.display = 'flex';
+    thumbnailsContainer.style.flexWrap = 'wrap';
+    thumbnailsContainer.style.gap = '10px';
+    thumbnailsContainer.style.justifyContent = 'flex-start'; // Left alignment
+    thumbnailsContainer.style.alignItems = 'center';
+    
+    // Add main product image as first thumbnail
+    const mainThumb = document.createElement('div');
+    mainThumb.className = 'modal-thumbnail active';
+    mainThumb.innerHTML = `<img src="${mainImagePath}" alt="Main">`;
+    mainThumb.addEventListener('click', function() {
+        document.getElementById('modalImage').src = mainImagePath;
+        document.querySelectorAll('.modal-thumbnail').forEach(thumb => thumb.classList.remove('active'));
+        this.classList.add('active');
+    });
+    thumbnailsContainer.appendChild(mainThumb);
+    
+    // Add additional images if available
+    if (product.additionalImages && product.additionalImages.length > 0) {
+        product.additionalImages.forEach((imgSrc, index) => {
+            // Fix additional image path
+            let additionalImagePath = imgSrc;
+            if (additionalImagePath && !additionalImagePath.startsWith('img/') && !additionalImagePath.startsWith('/') && !additionalImagePath.startsWith('http')) {
+                additionalImagePath = 'img/' + additionalImagePath;
+            }
+            
+            const thumb = document.createElement('div');
+            thumb.className = 'modal-thumbnail';
+            thumb.innerHTML = `<img src="${additionalImagePath}" alt="Image ${index + 1}">`;
+            thumb.addEventListener('click', function() {
+                document.getElementById('modalImage').src = additionalImagePath;
+                document.querySelectorAll('.modal-thumbnail').forEach(thumb => thumb.classList.remove('active'));
+                this.classList.add('active');
+            });
+            thumbnailsContainer.appendChild(thumb);
+        });
+    }
+    
+    // Hide the pack options section
+    const packOptionsSection = document.getElementById('packOptions');
+    if (packOptionsSection) {
+        packOptionsSection.style.display = 'none';
+    }
+    
+    // Add view-only message if this is a physical product
+    if (product.delivery !== 'digital') {
+        const viewOnlyMessage = document.createElement('div');
+        viewOnlyMessage.className = 'view-only-message';
+        viewOnlyMessage.innerHTML = `
+            <p>This product is displayed for informational purposes only.</p>
+            <p>Contact us for purchasing options.</p>
+        `;
+        viewOnlyMessage.style.marginTop = '20px';
+        viewOnlyMessage.style.padding = '10px';
+        viewOnlyMessage.style.backgroundColor = 'rgba(0,0,0,0.1)';
+        viewOnlyMessage.style.borderRadius = '5px';
+        viewOnlyMessage.style.textAlign = 'center';
+        
+        document.querySelector('.modal-info').appendChild(viewOnlyMessage);
+    }
+    
+    // Show modal
+    modal.style.display = 'block';
 }
 
 function setupHeroSection() {
@@ -1018,6 +1128,24 @@ function createProductCard(product) {
     }
     
     card.setAttribute('data-category', categoryClass);
+
+	// Add click handler for available products if shop is enabled
+	const shopEnabled = siteConfig.advanced && siteConfig.advanced.enableShop !== false;
+
+	if (product.status === 'available') {
+		card.addEventListener('click', function() {
+			if (shopEnabled) {
+				openProductModal(product);
+			} else if (product.delivery === 'digital' && product.digitalContent) {
+				// For digital products when shop is disabled, directly open the digital content
+				window.open(product.digitalContent, '_blank');
+			} else {
+				// For physical products when shop is disabled, just show product details
+				// without the ability to add to cart
+				openProductModalReadOnly(product);
+			}
+		});
+	}
     
     // Add unavailable class for non-available products
     if (product.status !== 'available') {
@@ -1498,7 +1626,11 @@ function setupFilterButtons() {
 function setupEventListeners() {
     // Cart link
     const cartLink = document.getElementById('cart-link');
-    if (cartLink) {
+    
+    // Check if shopping cart is enabled
+    const shopEnabled = window.siteConfig.advanced && window.siteConfig.advanced.enableShop !== false;
+    
+    if (cartLink && shopEnabled) {
         cartLink.addEventListener('click', function(e) {
             e.preventDefault();
             openCartModal();
@@ -1690,6 +1822,9 @@ function setupEventListeners() {
 function handleEmailCheckout(name, email, phone, message, orderDetails) {
     const siteConfig = window.siteConfig;
     
+    // Use order email if available, otherwise fall back to contact email
+    const orderEmail = siteConfig.advanced.orderEmail || siteConfig.site.email;
+    
     // Prepare email body
     let emailBody = `
 Name: ${name}
@@ -1724,7 +1859,7 @@ Phone: ${phone}
     emailBody += `\nAdditional Notes:\n${message}`;
     
     // Create mailto link
-    const mailtoLink = `mailto:${siteConfig.site.email}?subject=New Order from ${name}&body=${encodeURIComponent(emailBody)}`;
+    const mailtoLink = `mailto:${orderEmail}?subject=New Order from ${name}&body=${encodeURIComponent(emailBody)}`;
     
     // Display digital products if any
     if (hasDigitalProducts) {
