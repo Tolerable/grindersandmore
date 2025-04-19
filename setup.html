@@ -3393,74 +3393,226 @@
                 
                 // Initialize
 				function init() {
-					// First load saved values
-					loadFormValues();
+					// Load existing config.js file first
+					loadExistingConfig();
 					
-					// Then setup auto-save functionality
-					setupAutoSave();
-
-					// Reset image prompt field when page loads
-					const imagePromptField = document.getElementById('image-prompt');
-					if (imagePromptField) {
-						imagePromptField.value = '';
-					}
-					
-					// Hide the generated image container on initial load
-					const generatedContainer = document.querySelector('.generated-image-container');
-					if (generatedContainer) {
-						generatedContainer.style.display = 'none';
-					}
-					
-					// Init About Section
-					initializeAboutSection();
-					
-					// Rest of your existing init code...
-					document.querySelectorAll('.preset-theme').forEach(theme => {
-						theme.addEventListener('click', function() {
-							// Remove active class from all themes
-							document.querySelectorAll('.preset-theme').forEach(t => {
-								t.classList.remove('active');
+					// Wait a bit for config to load before continuing with the rest
+					setTimeout(() => {
+						// Load saved values from localStorage (might be overridden by config.js)
+						loadFormValues();
+						
+						// Then setup auto-save functionality
+						setupAutoSave();
+						
+						// Reset image prompt field when page loads
+						const imagePromptField = document.getElementById('image-prompt');
+						if (imagePromptField) {
+							imagePromptField.value = '';
+						}
+						
+						// Hide the generated image container on initial load
+						const generatedContainer = document.querySelector('.generated-image-container');
+						if (generatedContainer) {
+							generatedContainer.style.display = 'none';
+						}
+						
+						// Init About Section
+						initializeAboutSection();
+						
+						// Rest of your existing init code...
+						document.querySelectorAll('.preset-theme').forEach(theme => {
+							theme.addEventListener('click', function() {
+								// Remove active class from all themes
+								document.querySelectorAll('.preset-theme').forEach(t => {
+									t.classList.remove('active');
+								});
+								
+								// Add active class to clicked theme
+								this.classList.add('active');
+								
+								// Apply theme colors
+								const themeId = this.getAttribute('data-theme');
+								applyTheme(themeId);
 							});
-							
-							// Add active class to clicked theme
-							this.classList.add('active');
-							
-							// Apply theme colors
-							const themeId = this.getAttribute('data-theme');
-							applyTheme(themeId);
 						});
-					});
-				
-					document.getElementById('add-pack-btn').addEventListener('click', function() {
-						addPackOption();
-					});
-
-					document.getElementById('save-product-btn').addEventListener('click', function() {
-						saveProduct();
-					});
-
-					document.getElementById('cancel-product-btn').addEventListener('click', function() {
-						document.getElementById('product-editor-modal').style.display = 'none';
-					});
-
-					// Initialize product management
-					initializeProductManagement();
-
-					// Show/hide External Checkout URL based on initial value
-					const checkoutMethod = safeGetElement('checkout-method');
-					const externalCheckoutGroup = safeGetElement('external-checkout-group');
 					
-					if (checkoutMethod && externalCheckoutGroup) {
-						if (checkoutMethod.value === 'external') {
-							externalCheckoutGroup.style.display = 'block';
+						document.getElementById('add-pack-btn').addEventListener('click', function() {
+							addPackOption();
+						});
+
+						document.getElementById('save-product-btn').addEventListener('click', function() {
+							saveProduct();
+						});
+
+						document.getElementById('cancel-product-btn').addEventListener('click', function() {
+							document.getElementById('product-editor-modal').style.display = 'none';
+						});
+
+						// Initialize product management
+						initializeProductManagement();
+
+						// Show/hide External Checkout URL based on initial value
+						const checkoutMethod = safeGetElement('checkout-method');
+						const externalCheckoutGroup = safeGetElement('external-checkout-group');
+						
+						if (checkoutMethod && externalCheckoutGroup) {
+							if (checkoutMethod.value === 'external') {
+								externalCheckoutGroup.style.display = 'block';
+							} else {
+								externalCheckoutGroup.style.display = 'none';
+							}
+						}
+
+						// Load saved images from localStorage
+						loadSavedImages();
+					}, 500); // Half second delay to allow config to load
+				}
+
+				function loadExistingConfig() {
+					console.log("Attempting to load existing config.js...");
+					
+					// Create a script element to load the config file
+					const configScript = document.createElement('script');
+					configScript.src = 'js/config.js';
+					
+					// When the config loads successfully
+					configScript.onload = function() {
+						console.log("Successfully loaded config.js file");
+						
+						// Check if window.siteConfig exists after loading
+						if (window.siteConfig) {
+							console.log("Found existing siteConfig, populating form fields...");
+							populateFormFromConfig(window.siteConfig);
 						} else {
-							externalCheckoutGroup.style.display = 'none';
+							console.warn("Config file loaded but siteConfig object not found");
+						}
+					};
+					
+					// Handle load errors
+					configScript.onerror = function() {
+						console.warn("Could not load config.js file - using defaults");
+					};
+					
+					// Add the script to the document to start loading
+					document.head.appendChild(configScript);
+				}
+
+				// Add this function to populate form fields based on the loaded config
+				function populateFormFromConfig(config) {
+					// Basic Info
+					if (config.site) {
+						safeSetValue('site-name', config.site.name);
+						safeSetValue('site-tagline', config.site.tagline);
+						safeSetValue('site-logo', config.site.logo);
+						safeSetValue('hero-background', config.site.heroBackground);
+						safeSetValue('show-hero-text', config.site.showHeroText === false ? 'false' : 'true');
+						safeSetValue('site-email', config.site.email);
+						safeSetValue('copyright-text', config.site.copyright);
+						
+						// Social links
+						if (config.site.socialLinks) {
+							safeSetValue('social-discord', config.site.socialLinks.discord);
+							safeSetValue('social-youtube', config.site.socialLinks.youtube);
+							safeSetValue('social-tiktok', config.site.socialLinks.tiktok);
 						}
 					}
-
-					// Load saved images from localStorage
-					loadSavedImages();
 					
+					// Colors
+					if (config.colors) {
+						safeSetValue('primary-color', config.colors.primary);
+						safeSetValue('secondary-color', config.colors.secondary);
+						safeSetValue('tertiary-color', config.colors.tertiary);
+						safeSetValue('highlight-color', config.colors.highlight);
+						safeSetValue('alert-color', config.colors.alert);
+						safeSetValue('background-color', config.colors.background);
+						safeSetValue('text-color', config.colors.text);
+						
+						// Match to preset theme if possible
+						matchColorsToPresetTheme();
+					}
+					
+					// Fonts
+					if (config.fonts) {
+						safeSetValue('heading-font', config.fonts.heading);
+						safeSetValue('body-font', config.fonts.body);
+					}
+					
+					// Terminology
+					if (config.terminology) {
+						safeSetValue('category1', config.terminology.category1);
+						safeSetValue('category2', config.terminology.category2);
+						safeSetValue('category3', config.terminology.category3);
+						safeSetValue('productTerm', config.terminology.productTerm);
+						safeSetValue('productPluralTerm', config.terminology.productPluralTerm);
+						safeSetValue('packTerm', config.terminology.packTerm);
+						safeSetValue('cartTerm', config.terminology.cartTerm);
+						safeSetValue('soldOutLabel', config.terminology.soldOutLabel);
+						safeSetValue('comingSoonLabel', config.terminology.comingSoonLabel);
+					}
+					
+					// Effects
+					if (config.effects) {
+						if (config.effects.backgroundEffect) {
+							safeSetValue('bg-effect-enabled', config.effects.backgroundEffect.enabled ? 'true' : 'false');
+							safeSetValue('bg-effect-type', config.effects.backgroundEffect.type);
+							safeSetValue('bg-effect-intensity', config.effects.backgroundEffect.intensity);
+						}
+						
+						if (config.effects.specialFeature) {
+							safeSetValue('special-feature-enabled', config.effects.specialFeature.enabled ? 'true' : 'false');
+							safeSetValue('special-feature-type', config.effects.specialFeature.type);
+							safeSetValue('floating-object-image', config.effects.specialFeature.image);
+							safeSetValue('special-feature-behavior', config.effects.specialFeature.behavior);
+						}
+					}
+					
+					// Advanced Settings
+					if (config.advanced) {
+						safeSetValue('enable-local-storage', config.advanced.enableLocalStorage ? 'true' : 'false');
+						safeSetValue('checkout-method', config.advanced.checkoutMethod);
+						safeSetValue('external-checkout-url', config.advanced.externalCheckoutUrl);
+						safeSetValue('analytics-id', config.advanced.analyticsId);
+					}
+					
+					// Navigation items
+					if (config.navigation && config.navigation.length > 0) {
+						loadNavigationItems(config.navigation);
+					}
+					
+					// Friend links
+					if (config.friendLinks && config.friendLinks.length > 0) {
+						loadFriendLinks(config.friendLinks);
+					}
+					
+					// About section
+					if (config.about) {
+						// Store in localStorage to be used by the About section initialization
+						localStorage.setItem('aboutSection', JSON.stringify(config.about));
+					}
+					
+					// Products
+					if (config.products && config.products.items) {
+						localStorage.setItem('siteProducts', JSON.stringify(config.products.items));
+					}
+					
+					// Update UI based on loaded values
+					updateDependentUI();
+					
+					// Trigger change events on select elements to update dependent UI elements
+					document.querySelectorAll('select').forEach(select => {
+						const event = new Event('change');
+						select.dispatchEvent(event);
+					});
+				}
+
+				// Helper function to safely set form values
+				function safeSetValue(id, value) {
+					if (value === undefined || value === null) return;
+					
+					const element = document.getElementById(id);
+					if (element) {
+						element.value = value;
+					}
 				}
 
 				function safeGetElement(id) {
