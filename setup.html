@@ -481,6 +481,12 @@
                     <label for="site-email">Contact Email</label>
                     <input type="email" id="site-email" value="contact@example.com">
                 </div>
+
+				<div class="form-group">
+					<label for="order-email">Order Email</label>
+					<input type="email" id="order-email" value="orders@example.com">
+					<p class="help-text">Email address where orders will be sent. If left empty, the Contact Email will be used.</p>
+				</div>
                 
                 <h3>Social Links</h3>
                 
@@ -942,6 +948,15 @@
             <!-- Advanced Section -->
             <div class="config-section" id="advanced-section">
                 <h2>Advanced Settings</h2>
+
+				<div class="form-group">
+					<label for="enable-shop">Enable Shopping Cart</label>
+					<select id="enable-shop">
+						<option value="true" selected>Yes</option>
+						<option value="false">No</option>
+					</select>
+					<p class="help-text">Enable or disable the shopping cart functionality. Useful for sites that only offer digital products or information.</p>
+				</div>
                 
                 <div class="form-group">
                     <label for="enable-local-storage">Enable Local Storage for Cart</label>
@@ -2808,10 +2823,12 @@
 						navigation: navItems,
 						friendLinks: friendLinks,  // Add friend links to the config
 						advanced: {
+							enableShop: document.getElementById('enable-shop').value === 'true',
 							enableLocalStorage: document.getElementById('enable-local-storage').value === 'true',
 							checkoutMethod: document.getElementById('checkout-method').value,
 							externalCheckoutUrl: document.getElementById('external-checkout-url').value,
-							analyticsId: document.getElementById('analytics-id').value
+							analyticsId: document.getElementById('analytics-id').value,
+							orderEmail: document.getElementById('order-email').value
 						}
 					};
 				}
