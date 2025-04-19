@@ -48,7 +48,7 @@
         },
         "specialFeature": {
             "enabled": true,
-            "type": "spotlight",
+            "type": "floatingObject",
             "image": "img/floating-object.png",
             "behavior": "pulse"
         }
@@ -265,7 +265,7 @@
     "navigation": [
         {
             "name": "Home",
-            "url": "https://tolerable.github.io/scaleforged/"
+            "url": "https://www.scaleforged3d.com/"
         },
         {
             "name": "Our Products",
@@ -288,6 +288,10 @@
         {
             "name": "AI-Ministries",
             "url": "https://www.ai-ministries.com/"
+        },
+        {
+            "name": "SitePackages",
+            "url": "https://www.sitepackages.net/"
         }
     ],
     "advanced": {
