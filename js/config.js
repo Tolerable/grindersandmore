@@ -3,18 +3,18 @@
 
 				window.siteConfig = {
     "site": {
-        "name": "Midnighters Seed Bank",
-        "tagline": "Testing Premium Genetics from Around the World",
-        "logo": "img/logo.png",
+        "name": "Scale Forged 3D",
+        "tagline": "Making Dreams Come True",
+        "logo": "logo.jpg",
         "heroBackground": "hero-bg.jpg",
-        "showHeroText": true,
-        "email": "midnighters@sitepackages.net",
+        "showHeroText": false,
+        "email": "contact@scaleforged3d.com",
         "socialLinks": {
-            "discord": "https://discord.gg/8vK42qAGBP",
-            "youtube": "",
+            "discord": "https://linktr.ee/scaleforged",
+            "youtube": "https://www.youtube.com/@ScaleForged3D",
             "tiktok": ""
         },
-        "copyright": "© 2025 Midnighters Seed Bank. All rights reserved."
+        "copyright": "© 2025 Scale Forged 3D. All rights reserved."
     },
     "colors": {
         "primary": "#003b6f",
@@ -25,10 +25,6 @@
         "background": "#0a0e17",
         "text": "#ffffff"
     },
-    "background": {
-        "image": "",
-        "sectionImage": ""
-    },
     "fonts": {
         "heading": "'Orbitron', sans-serif",
         "body": "'Exo 2', sans-serif"
@@ -36,40 +32,53 @@
     "terminology": {
         "category1": "Premium Collection",
         "category2": "Signature Series",
-        "category3": "Hybrid Collection",
-        "productTerm": "Collectible",
-        "productPluralTerm": "Collectibles",
-        "packTerm": "Collection Pack",
-        "cartTerm": "Collection Box",
+        "category3": "Classic Collection",
+        "productTerm": "Item",
+        "productPluralTerm": "Items",
+        "packTerm": "Item Pack",
+        "cartTerm": "Shopping Cart",
         "soldOutLabel": "UNAVAILABLE",
         "comingSoonLabel": "COMING SOON"
     },
     "effects": {
         "backgroundEffect": {
             "enabled": true,
-            "type": "stars",
+            "type": "particles",
             "intensity": "medium"
         },
         "specialFeature": {
-            "enabled": false,
-            "type": "floatingObject",
+            "enabled": true,
+            "type": "spotlight",
             "image": "img/floating-object.png",
-            "behavior": "teleport"
+            "behavior": "pulse"
         }
     },
-    "strainTree": {
-        "enabled": false,
-        "title": "Genetics Explorer",
-        "description": "Explore the genetic relationships between our strains.",
-        "dataPath": "data/straindata.json"
-    },
     "about": {
-        "title": "Midnighters Seed Bank",
-        "subtitle": "We test premium genetics in Ohio",
-        "image": "img/about.jpg",
-        "description": "Founded in 2025, Midnighters Seed Bank is dedicated to bringing unique collectibles to enthusiasts around Ohio. We carefully curate our collections to ensure only the highest quality items reach our members.",
-        "teamMembers": [],
-        "historyItems": [],
+        "title": "About Scale Forged",
+        "subtitle": "Our Story and Mission",
+        "image": "about.jpg",
+        "description": "Scale Forged is committed to bringing the best design and manufacturing work to every customer.  ",
+        "teamMembers": [
+            {
+                "name": "Rast-Alf-Arian",
+                "title": "Co-Owner, Back up Production Operator, US Division Lead, Sales Rep",
+                "bio": "CEO for Scale Forged 3D Printing and I'm the back up production operator for Scale Forged 3D Printing and the main branch in the United States. I also manage the Companies Youtube channel. and do the majority of sales for Scale Forged 3D Printing. I am also responsible for all the Networking involved",
+                "image": "team2.jpg"
+            },
+            {
+                "name": "Brooklyn",
+                "title": "Co-Owner, COO, Division Lead, Social Media Manager",
+                "bio": "COO of Scale Forged 3D Printing. I oversee Production whether it be in the USA or any of our other Divisions/Branches. I also manage all our socials for Scale Forged 3D Printing. Languages known : English, Dutch, and German",
+                "image": "team1.jpg"
+            }
+        ],
+        "historyItems": [
+            {
+                "year": "2025",
+                "title": "Website Released",
+                "description": "Website created and released as major world event, press reviews go insane across the globe!"
+            }
+        ],
         "additionalSections": []
     },
     "products": {
@@ -94,28 +103,170 @@
             }
         ],
         "items": {
-            "product-00001": {
-                "id": "product-00001",
-                "name": "FREE GOOGLE SEARCH",
+            "product-1744489756546": {
+                "id": "product-1744489756546",
+                "name": "3 Piece Grinder ",
                 "type": "Premium Collection",
-                "status": "available",
-                "delivery": "digital",
-                "digitalContent": "https://www.google.com/",
-                "image": "digital1.jpg",
-                "additionalImages": [],
-                "description": "A Digital Product, FREE for you.",
-                "variety": "Premium Collection",
-                "rating": "4.5/5",
-                "origin": "INTERNET",
-                "details": "No Charge, Use it freely!",
-                "notes": "Share it with friends!",
+                "status": "sold-out",
+                "delivery": "physical",
+                "digitalContent": "",
+                "image": "product1.jpg",
+                "additionalImages": [
+                    "product1-detail1.jpg"
+                ],
+                "description": "3 Piece Grinder fit to standard canning jar (included).\n(UPGRADED TO UNIQUE VERSIONS)",
+                "variety": "3D-Printed",
+                "rating": "4.7/5",
+                "origin": "Inhouse",
+                "details": "4 Oz. Jar Included.",
+                "notes": "Available as supply allows.",
                 "packOptions": []
+            },
+            "product-1744514401203": {
+                "id": "product-1744514401203",
+                "name": "Classic Cannagar Mold",
+                "type": "Signature Series",
+                "status": "sold-out",
+                "delivery": "physical",
+                "digitalContent": "",
+                "image": "product2.jpg",
+                "additionalImages": [
+                    "product2-detail1.jpg",
+                    "product2-detail2.jpg",
+                    "product2-detail3.jpg"
+                ],
+                "description": "Forge your own premium cannagar and finish off with your favorite wrap. \n(NOT CURRENTLY AVAILABLE)",
+                "variety": "3D-Printed",
+                "rating": "4.8/5",
+                "origin": "Inhouse",
+                "details": "Quality hand crafted cannagar now available at home!",
+                "notes": "Extra pieces available with request + shipping & handling.",
+                "packOptions": []
+            },
+            "product-1744515239442": {
+                "id": "product-1744515239442",
+                "name": "Hydrometer Jar Lids (REG)",
+                "type": "Premium Collection",
+                "status": "coming-soon",
+                "delivery": "physical",
+                "digitalContent": "",
+                "image": "product3.jpg",
+                "additionalImages": [
+                    "product3-detail2.jpg",
+                    "product3-detail3.jpg"
+                ],
+                "description": "Fits \"REGULAR\" mouth sized canning jars.",
+                "variety": "3D-Printed",
+                "rating": "4.7/5",
+                "origin": "Inhouse",
+                "details": "Hydrometer insert is included with each lid in this package.",
+                "notes": "Hydrometers may have slightly different readings.",
+                "packOptions": [
+                    {
+                        "size": "3",
+                        "regularPrice": 15,
+                        "salePrice": 10.5
+                    },
+                    {
+                        "size": "6",
+                        "regularPrice": 30,
+                        "salePrice": 20
+                    }
+                ]
+            },
+            "product-1744515636481": {
+                "id": "product-1744515636481",
+                "name": "Hydrometer Jar Lid (WIDE)",
+                "type": "Signature Series",
+                "status": "coming-soon",
+                "delivery": "physical",
+                "digitalContent": "",
+                "image": "product4.jpg",
+                "additionalImages": [],
+                "description": "Fits \"WIDE\" mouth sized canning jars.\n\n",
+                "variety": "3D-Printed",
+                "rating": "4.8/5",
+                "origin": "Inhouse",
+                "details": "Hydrometer insert is included with each lid in this package.",
+                "notes": "Hydrometers may have slightly different readings.\n",
+                "packOptions": [
+                    {
+                        "size": "3",
+                        "regularPrice": 15,
+                        "salePrice": 12
+                    },
+                    {
+                        "size": "6",
+                        "regularPrice": 30,
+                        "salePrice": 23
+                    }
+                ]
+            },
+            "product-1744516419132": {
+                "id": "product-1744516419132",
+                "name": "Seed Shipper Bullion (SM)",
+                "type": "Classic Collection",
+                "status": "coming-soon",
+                "delivery": "physical",
+                "digitalContent": "",
+                "image": "product5.jpg",
+                "additionalImages": [],
+                "description": "2 Piece tiny containers that hold seeds and can be mailed in a standard USPS envelope.",
+                "variety": "3D-Printed",
+                "rating": "4.6/5",
+                "origin": "Inhouse",
+                "details": "Designed to keep seeds safe when being sent through postal system letter rollers.",
+                "notes": "May not be used to ship anything not allowed by law in your location.",
+                "packOptions": [
+                    {
+                        "size": "12",
+                        "regularPrice": 6,
+                        "salePrice": 5
+                    },
+                    {
+                        "size": "24",
+                        "regularPrice": 12,
+                        "salePrice": 10
+                    }
+                ]
+            },
+            "product-1744517127437": {
+                "id": "product-1744517127437",
+                "name": "Seed Shipper Bullion (LG)",
+                "type": "Classic Collection",
+                "status": "coming-soon",
+                "delivery": "physical",
+                "digitalContent": "",
+                "image": "product6.jpg",
+                "additionalImages": [],
+                "description": "2 Piece tiny containers that hold seeds and can be mailed in a standard USPS envelope.",
+                "variety": "3D-Printed",
+                "rating": "4.6/5",
+                "origin": "Inhouse",
+                "details": "Designed to keep seeds safe when being sent through postal system letter rollers.\n",
+                "notes": "May not be used to ship anything not allowed by law in your location.",
+                "packOptions": [
+                    {
+                        "size": "12",
+                        "regularPrice": 12,
+                        "salePrice": 7.2
+                    },
+                    {
+                        "size": "24",
+                        "regularPrice": 24,
+                        "salePrice": 14
+                    }
+                ]
             }
         }
     },
     "navigation": [
         {
-            "name": "Collections",
+            "name": "Home",
+            "url": "https://www.scaleforged3d.com/"
+        },
+        {
+            "name": "Our Products",
             "url": "#products"
         },
         {
@@ -131,6 +282,14 @@
         {
             "name": "StrainNavigator",
             "url": "https://www.strainnavigator.com/"
+        },
+        {
+            "name": "AI-Ministries",
+            "url": "https://www.ai-ministries.com/"
+        },
+        {
+            "name": "SitePackages",
+            "url": "https://www.sitepackages.net/"
         }
     ],
     "advanced": {
@@ -139,6 +298,6 @@
         "checkoutMethod": "email",
         "externalCheckoutUrl": "",
         "analyticsId": "",
-        "orderEmail": "orders@example.com"
+        "orderEmail": "order@scaleforged3d.com"
     }
 };
