@@ -1,6 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+// Generate a unique session ID when the page loads
+const sessionId = Date.now().toString() + Math.random().toString(36).substring(2, 8);
+localStorage.setItem('configSessionId', sessionId);
+
+// Create a meta tag to prevent caching
+const metaTag = document.createElement('meta');
+metaTag.httpEquiv = 'Cache-Control';
+metaTag.content = 'no-cache, no-store, must-revalidate';
+document.head.appendChild(metaTag);
+
+// Add a unique parameter to all image requests to bypass cache
+const originalFetch = window.fetch;
+window.fetch = function(url, options) {
+  // Only modify image URLs
+  if (typeof url === 'string' && 
+      (url.endsWith('.jpg') || url.endsWith('.png') || url.endsWith('.jpeg') || url.endsWith('.ico') || 
+       url.match(/\/img\//) || url.match(/\/strains\//) || url.includes('pollinations'))) {
+    // Add a cache-busting parameter
+    const separator = url.includes('?') ? '&' : '?';
+    url = `${url}${separator}_cb=${sessionId}`;
+  }
+  return originalFetch.call(this, url, options);
+};
+
+// Do the same for image tags when they're created
+const originalCreateElement = document.createElement;
+document.createElement = function(tagName) {
+  const element = originalCreateElement.call(document, tagName);
+  if (tagName.toLowerCase() === 'img') {
+    // Override the src property
+    const originalSrcDescriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+    Object.defineProperty(element, 'src', {
+      get: function() {
+        return originalSrcDescriptor.get.call(this);
+      },
+      set: function(value) {
+        if (typeof value === 'string') {
+          // Add cache-busting parameter to image URLs
+          const separator = value.includes('?') ? '&' : '?';
+          value = `${value}${separator}_cb=${sessionId}`;
+        }
+        return originalSrcDescriptor.set.call(this, value);
+      },
+      configurable: true
+    });
+  }
+  return element;
+};
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Site Configuration Tool</title>
@@ -438,9 +488,25 @@
                 <div class="config-tab" data-tab="advanced">Advanced</div>
 				<div class="config-tab" data-tab="images">Images</div>
 				<div class="config-tab" data-tab="products">Products</div>
+				<div class="config-tab" data-tab="strainTree">Strain Tree</div>
 				<div class="config-tab" data-tab="about">About</div>
 				<div class="config-tab" data-tab="support">Support</div>
             </div>
+
+			<!-- Config Path Selector -->
+			<h2>Configuration Source</h2>
+			<div class="form-group">
+				<label for="config-path">Configuration File Path</label>
+				<div style="display: flex; gap: 10px; margin-bottom: 10px;">
+					<input type="text" id="config-path" placeholder="Path to config.js (e.g., js/config.js)" style="flex: 1;">
+					<button type="button" class="btn" id="load-config-btn">Load Config</button>
+				</div>
+				<div id="detected-configs" style="margin-top: 10px;">
+					<p>Detected configurations:</p>
+					<div id="config-options" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+				</div>
+				<p class="help-text">Select a detected configuration or enter a custom path to your config.js file.</p>
+			</div>
             
             <!-- Basic Info Section -->
             <div class="config-section active" id="basic-section">
@@ -590,6 +656,18 @@
                         <span>Alert Color</span>
                     </div>
                 </div>
+
+				<div class="form-group">
+					<label for="background-image">Main Background Image URL</label>
+					<input type="text" id="background-image" placeholder="hero-background.jpg">
+					<p class="help-text">Full-screen background image that stays fixed during scrolling</p>
+				</div>
+
+				<div class="form-group">
+					<label for="section-image">Background Texture URL</label>
+					<input type="text" id="section-image" placeholder="metal-texture.jpg">
+					<p class="help-text">Tiled texture pattern for the site background</p>
+				</div>
                 
                 <div class="form-group">
                     <div class="color-input">
@@ -634,23 +712,26 @@
             <div class="config-section" id="terminology-section">
                 <h2>Terminology</h2>
                 <p>Customize the terms used throughout your site.</p>
-                
-                <h3>Category Names</h3>
-                
-                <div class="form-group">
-                    <label for="category1">Category 1 (Equivalent to Indica)</label>
-                    <input type="text" id="category1" value="Premium Collection">
-                </div>
-                
-                <div class="form-group">
-                    <label for="category2">Category 2 (Equivalent to Sativa)</label>
-                    <input type="text" id="category2" value="Signature Series">
-                </div>
-                
-                <div class="form-group">
-                    <label for="category3">Category 3 (Equivalent to Hybrid)</label>
-                    <input type="text" id="category3" value="Hybrid Collection">
-                </div>
+								
+				<h3>Product Categories</h3>
+								
+				<div class="form-group">
+					<label for="category1">Category 1</label>
+					<input type="text" id="category1" value="Premium Collection">
+					<p class="help-text">Your primary product category</p>
+				</div>
+								
+				<div class="form-group">
+					<label for="category2">Category 2</label>
+					<input type="text" id="category2" value="Signature Series">
+					<p class="help-text">Your secondary product category</p>
+				</div>
+								
+				<div class="form-group">
+					<label for="category3">Category 3</label>
+					<input type="text" id="category3" value="Hybrid Collection">
+					<p class="help-text">Your tertiary product category</p>
+				</div>
                 
                 <h3>Product Terms</h3>
                 
@@ -762,7 +843,7 @@
 					<label for="image-type">Image Type</label>
 					<select id="image-type">
 						<option value="logo">Logo (200x200)</option>
-						<option value="hero">Hero Background (1920x500)</option>
+						<option value="hero">Hero Background (1190x500)</option>
 						<option value="product1">Product 1 (600x600)</option>
 						<option value="product2">Product 2 (600x600)</option>
 						<option value="product3">Product 3 (600x600)</option>
@@ -840,9 +921,7 @@
 									<div class="form-group">
 										<label for="product-type" style="color: var(--secondary-color);">Product Type</label>
 										<select id="product-type">
-											<option value="category1">Premium Collection</option>
-											<option value="category2">Signature Series</option>
-											<option value="category3">Hybrid Collection</option>
+											<!-- Category options will be dynamically populated -->
 										</select>
 									</div>
 									
@@ -1042,6 +1121,37 @@
 				
             </div>
 
+			<!-- STRAIN TREE SECTIONS -->
+			<div class="config-section" id="strainTree-section">
+				<h2>Strain Tree Visualization</h2>
+				<p>Configure the interactive strain tree visualization that will appear after your product cards.</p>
+				
+				<div class="form-group">
+					<label for="enable-strain-tree">Enable Strain Tree</label>
+					<select id="enable-strain-tree">
+						<option value="true">Yes</option>
+						<option value="false" selected>No</option>
+					</select>
+					<p class="help-text">Enable or disable the strain tree visualization section.</p>
+				</div>
+				
+				<div class="form-group">
+					<label for="strain-tree-title">Section Title</label>
+					<input type="text" id="strain-tree-title" value="Strain Genetics Explorer">
+				</div>
+				
+				<div class="form-group">
+					<label for="strain-tree-description">Section Description</label>
+					<textarea id="strain-tree-description" rows="2">Explore the genetic relationships between our strains.</textarea>
+				</div>
+				
+				<div class="form-group">
+					<label for="strain-data-path">Strain Data JSON Path</label>
+					<input type="text" id="strain-data-path" value="data/straindata.json">
+					<p class="help-text">Path to the JSON file containing strain tree data. Default: data/straindata.json</p>
+				</div>
+			</div>
+
 			<!-- About Section -->
 			<div class="config-section" id="about-section">
 				<h2>About Page Content</h2>
@@ -1230,6 +1340,18 @@
                     document.getElementById(`${tabId}-section`).classList.add('active');
                 });
             });
+
+			// Add tab switching event listener
+			document.querySelectorAll('.config-tab').forEach(tab => {
+				tab.addEventListener('click', function() {
+					// Check if this is the Images tab
+					if (this.getAttribute('data-tab') === 'images') {
+						// Reload the saved images with our modified function
+						// This will check if we're in a different config and clear if needed
+						loadSavedImages();
+					}
+				});
+			});
 
 			// Show/hide Digital Content URL based on delivery type
 			document.getElementById('product-delivery').addEventListener('change', function() {
@@ -1616,7 +1738,6 @@
 						imagePath = 'img/placeholder.jpg';
 					}
 					
-					// Simplify this completely - use the exact same approach for all statuses
 					let statusHTML;
 					
 					if (product.status === 'available') {
@@ -1654,7 +1775,7 @@
 					productList.appendChild(productItem);
 				});
 				
-				// Event listeners remain the same
+				// Add event listeners for edit and delete buttons
 				document.querySelectorAll('.edit-product-btn').forEach(btn => {
 					btn.addEventListener('click', function() {
 						const productId = this.getAttribute('data-product-id');
@@ -1701,13 +1822,46 @@
 				}
 			}
 
+			// Function to update product type dropdown with current terminology
+			function updateProductTypeDropdown() {
+				const productTypeSelect = document.getElementById('product-type');
+				if (!productTypeSelect) return;
+				
+				// Clear existing options
+				productTypeSelect.innerHTML = '';
+				
+				// Get current category terminology from inputs
+				const category1 = document.getElementById('category1').value || 'Category 1';
+				const category2 = document.getElementById('category2').value || 'Category 2';
+				const category3 = document.getElementById('category3').value || 'Category 3';
+				
+				// Add options
+				const option1 = document.createElement('option');
+				option1.value = 'category1';
+				option1.textContent = category1;
+				productTypeSelect.appendChild(option1);
+				
+				const option2 = document.createElement('option');
+				option2.value = 'category2';
+				option2.textContent = category2;
+				productTypeSelect.appendChild(option2);
+				
+				const option3 = document.createElement('option');
+				option3.value = 'category3';
+				option3.textContent = category3;
+				productTypeSelect.appendChild(option3);
+			}
+
 			function openProductEditor(product = null) {
 				const modal = document.getElementById('product-editor-modal');
 				if (!modal) {
 					console.error('Product editor modal not found in the DOM');
 					return;
 				}
-				
+
+				// Update product type dropdown with current terminology
+				updateProductTypeDropdown();
+	
 				const isNewProduct = !product;
 				
 				// Set form values safely
@@ -2114,32 +2268,21 @@
 				additionalImagesContainer.appendChild(imageField);
 			}
 
-			// Update saveProduct to include additional images
 			function saveProduct() {
 				// Get values from form
 				const productId = document.getElementById('product-id').value;
 				const productName = document.getElementById('product-name').value;
 				
-				// Get product type from the selected option
+				// Get product type from the selected option's text content
 				const productTypeSelect = document.getElementById('product-type');
 				const selectedOption = productTypeSelect.options[productTypeSelect.selectedIndex];
-				const productTypeValue = selectedOption.value;
-				
-				// Map the category value to the actual terminology
-				let productType;
-				if (productTypeValue === 'category1') {
-					productType = window.siteConfig?.terminology?.category1 || 'Premium Collection';
-				} else if (productTypeValue === 'category2') {
-					productType = window.siteConfig?.terminology?.category2 || 'Signature Series';
-				} else if (productTypeValue === 'category3') {
-					productType = window.siteConfig?.terminology?.category3 || 'Hybrid Collection';
-				}
+				const productType = selectedOption.textContent;
 				
 				const productStatus = document.getElementById('product-status').value;
 				const productDelivery = document.getElementById('product-delivery').value;
 				const digitalContent = document.getElementById('digital-content').value;
 				
-				// FIXED: Strip "img/" prefix if it exists
+				// Strip "img/" prefix if it exists
 				let productImage = document.getElementById('product-image').value;
 				if (productImage.startsWith('img/')) {
 					productImage = productImage.substring(4);
@@ -2149,6 +2292,7 @@
 				const productVariety = document.getElementById('product-variety').value;
 				const productRating = document.getElementById('product-rating').value;
 				const productOrigin = document.getElementById('product-origin').value;
+				const productRarity = document.getElementById('product-rarity').value;
 				const productDetails = document.getElementById('product-details').value;
 				const productNotes = document.getElementById('product-notes').value;
 				
@@ -2158,7 +2302,7 @@
 					return;
 				}
 				
-				// Get additional images - FIXED: Strip "img/" prefix if it exists
+				// Get additional images - Strip "img/" prefix if it exists
 				const additionalImages = [];
 				document.querySelectorAll('#additional-images input').forEach(input => {
 					if (input.value.trim()) {
@@ -2176,14 +2320,16 @@
 					const inputs = packEl.querySelectorAll('input');
 					
 					const size = inputs[0].value;
+					// Parse the values as floats first
 					const regularPrice = parseFloat(inputs[1].value);
 					const salePrice = parseFloat(inputs[2].value);
 					
 					if (size && !isNaN(regularPrice) && !isNaN(salePrice)) {
 						packOptions.push({
 							size,
-							regularPrice,
-							salePrice
+							// Store the exact values with 2 decimal places
+							regularPrice: regularPrice.toFixed(2),
+							salePrice: salePrice.toFixed(2)
 						});
 					}
 				});
@@ -2205,6 +2351,7 @@
 					variety: productVariety,
 					rating: productRating,
 					origin: productOrigin,
+					rarity: productRarity,
 					details: productDetails,
 					notes: productNotes,
 					packOptions: packOptions
@@ -2234,11 +2381,26 @@
 				packOption.className = 'pack-option';
 				packOption.style.cssText = 'background: rgba(10, 14, 23, 0.8); border: 1px solid var(--primary-color); border-radius: 5px; padding: 10px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; align-items: center;';
 				
+				// Format the values with 2 decimal places for display
+				let regularPrice = '';
+				let salePrice = '';
+				
+				if (pack) {
+					// Handle both string and number formats for backward compatibility
+					regularPrice = typeof pack.regularPrice === 'string' ? 
+						pack.regularPrice : 
+						Number(pack.regularPrice).toFixed(2);
+						
+					salePrice = typeof pack.salePrice === 'string' ? 
+						pack.salePrice : 
+						Number(pack.salePrice).toFixed(2);
+				}
+				
 				// Create a more compact layout for the inputs
 				packOption.innerHTML = `
 					<input type="text" placeholder="Size (e.g. 3 Pack)" value="${pack ? pack.size : ''}" style="width: 100%; background: rgba(0,0,0,0.2); color: var(--text-color); border: 1px solid var(--primary-color);">
-					<input type="number" placeholder="Regular Price" value="${pack ? pack.regularPrice : ''}" style="width: 100%; background: rgba(0,0,0,0.2); color: var(--text-color); border: 1px solid var(--primary-color);">
-					<input type="number" placeholder="Sale Price" value="${pack ? pack.salePrice : ''}" style="width: 100%; background: rgba(0,0,0,0.2); color: var(--text-color); border: 1px solid var(--primary-color);">
+					<input type="number" step="0.01" placeholder="Regular Price" value="${regularPrice}" style="width: 100%; background: rgba(0,0,0,0.2); color: var(--text-color); border: 1px solid var(--primary-color);">
+					<input type="number" step="0.01" placeholder="Sale Price" value="${salePrice}" style="width: 100%; background: rgba(0,0,0,0.2); color: var(--text-color); border: 1px solid var(--primary-color);">
 					<button type="button" class="remove-pack-btn" style="height: 30px; width: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: var(--alert-color); color: white; border: none; cursor: pointer; padding: 0; font-size: 16px;">×</button>
 				`;
 				
@@ -2285,7 +2447,7 @@
 						height = 200;
 						break;
 					case 'hero':
-						width = 1920;
+						width = 1190;
 						height = 500;
 						break;
 					case 'product1':
@@ -2411,6 +2573,11 @@
 					filename = `product${productNum}.jpg`;
 				}
 				
+				// Update the config ID whenever we save a new image
+				const configPath = window.location.pathname;
+				const currentConfigId = configPath.split('/').slice(0, -1).join('/');
+				localStorage.setItem('configImageId', currentConfigId);
+				
 				if (existingItem) {
 					// Update the existing item in the DOM
 					existingItem.querySelector('img').src = imageUrl;
@@ -2467,6 +2634,26 @@
 			}
 
 			function loadSavedImages() {
+				// First, we'll set a unique identifier for this configuration
+				// We'll use the path to uniquely identify different configurations
+				const configPath = window.location.pathname;
+				const currentConfigId = configPath.split('/').slice(0, -1).join('/');
+				
+				// Get the saved config ID
+				const savedConfigId = localStorage.getItem('configImageId');
+				
+				// If the config IDs don't match, clear the saved images
+				if (savedConfigId && savedConfigId !== currentConfigId) {
+					console.log("Detected different configuration path. Clearing saved images.");
+					localStorage.removeItem('savedImages');
+					// Update the config ID
+					localStorage.setItem('configImageId', currentConfigId);
+				} else if (!savedConfigId) {
+					// First time loading, set the config ID
+					localStorage.setItem('configImageId', currentConfigId);
+				}
+				
+				// Now load any saved images (which will be empty if we just cleared them)
 				const savedImages = JSON.parse(localStorage.getItem('savedImages') || '[]');
 				const libraryGrid = document.getElementById('image-library-grid');
 				
@@ -2725,7 +2912,6 @@
 					document.querySelectorAll('.nav-item').forEach(item => {
 						const inputs = item.querySelectorAll('input');
 						if (inputs[0].value && inputs[1].value) {
-							// Just use the URL as is - no automatic modifications
 							let navUrl = inputs[1].value;
 							
 							navItems.push({
@@ -2735,12 +2921,11 @@
 						}
 					});
 					
-					// Get friend links - same approach
+					// Get friend links
 					const friendLinks = [];
 					document.querySelectorAll('#friend-links .form-group').forEach(item => {
 						const inputs = item.querySelectorAll('input');
 						if (inputs[0].value && inputs[1].value) {
-							// Just use the URL as is - no automatic modifications
 							let friendUrl = inputs[1].value;
 							
 							friendLinks.push({
@@ -2756,11 +2941,14 @@
 					// Get about section data
 					const aboutData = getAboutSectionConfig();
 					
+					// THIS IS THE FIX - Get strainTree value properly from the form
+					const strainTreeEnabled = document.getElementById('enable-strain-tree').value;
+					
 					return {
 						site: {
 							name: document.getElementById('site-name').value,
 							tagline: document.getElementById('site-tagline').value,
-							logo: document.getElementById('site-logo').value,							
+							logo: document.getElementById('site-logo').value,                            
 							heroBackground: document.getElementById('hero-background').value,
 							showHeroText: document.getElementById('show-hero-text').value === 'true',
 							email: document.getElementById('site-email').value,
@@ -2779,6 +2967,10 @@
 							alert: document.getElementById('alert-color').value,
 							background: document.getElementById('background-color').value,
 							text: document.getElementById('text-color').value
+						},
+						background: {
+							image: document.getElementById('background-image').value,
+							sectionImage: document.getElementById('section-image').value
 						},
 						fonts: {
 							heading: document.getElementById('heading-font').value,
@@ -2807,8 +2999,14 @@
 								image: document.getElementById('floating-object-image').value,
 								behavior: document.getElementById('special-feature-behavior').value
 							}
-						},
-						about: aboutData, // Add the about section data
+						},                        
+						strainTree: {
+							enabled: document.getElementById('enable-strain-tree').value === 'true',
+							title: document.getElementById('strain-tree-title').value,
+							description: document.getElementById('strain-tree-description').value,
+							dataPath: document.getElementById('strain-data-path').value || 'data/straindata.json'
+						},                  
+						about: aboutData,
 						products: {
 							defaultStatus: 'available',
 							enableRatings: true,
@@ -2821,7 +3019,7 @@
 							items: savedProducts
 						},
 						navigation: navItems,
-						friendLinks: friendLinks,  // Add friend links to the config
+						friendLinks: friendLinks,
 						advanced: {
 							enableShop: document.getElementById('enable-shop').value === 'true',
 							enableLocalStorage: document.getElementById('enable-local-storage').value === 'true',
@@ -3415,8 +3613,19 @@
 					
 					// Wait a bit for config to load before continuing with the rest
 					setTimeout(() => {
+						// Add event listener to the load button
+						const loadConfigBtn = document.getElementById('load-config-btn');
+						if (loadConfigBtn) {
+							loadConfigBtn.addEventListener('click', function() {
+								const configPath = document.getElementById('config-path').value;
+								if (configPath) {
+									loadConfigFromPath(configPath);
+								}
+							});
+						}
+						
 						// Load saved values from localStorage (might be overridden by config.js)
-						loadFormValues();
+						// loadFormValues();
 						
 						// Then setup auto-save functionality
 						setupAutoSave();
@@ -3435,8 +3644,12 @@
 						
 						// Init About Section
 						initializeAboutSection();
+
+						// Add event listeners to category inputs
+						document.getElementById('category1').addEventListener('input', updateProductTypeDropdown);
+						document.getElementById('category2').addEventListener('input', updateProductTypeDropdown);
+						document.getElementById('category3').addEventListener('input', updateProductTypeDropdown);
 						
-						// Rest of your existing init code...
 						document.querySelectorAll('.preset-theme').forEach(theme => {
 							theme.addEventListener('click', function() {
 								// Remove active class from all themes
@@ -3465,6 +3678,8 @@
 							document.getElementById('product-editor-modal').style.display = 'none';
 						});
 
+						loadSavedImages();
+
 						// Initialize product management
 						initializeProductManagement();
 
@@ -3488,29 +3703,193 @@
 				function loadExistingConfig() {
 					console.log("Attempting to load existing config.js...");
 					
-					// Create a script element to load the config file
-					const configScript = document.createElement('script');
-					configScript.src = 'js/config.js';
+					// Check if a path was previously saved in localStorage
+					const savedConfigPath = localStorage.getItem('savedConfigPath');
 					
-					// When the config loads successfully
-					configScript.onload = function() {
-						console.log("Successfully loaded config.js file");
+					// Only attempt to load if not already loaded
+					if (typeof window.siteConfig === 'undefined') {
+						// Common paths to try
+						const possiblePaths = [
+							// Local path - works for standard setups
+							'js/config.js',
+							
+							// Path based on current location
+							window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + 'js/config.js',
+							
+							// For /SITEPACKAGES/PUB/USERNAME/ structure
+							'/SITEPACKAGES/PUB/' + window.location.hostname.split('.')[0] + '/js/config.js',
+							
+							// For direct /SITEPACKAGES/ structure
+							'/SITEPACKAGES/js/config.js',
+							
+							// For username.github.io/reponame structure
+							'/' + window.location.pathname.split('/')[1] + '/js/config.js',
+							
+							// Absolute from domain root
+							'/js/config.js',
+							
+							// One level up (for setups in subdirectories)
+							'../js/config.js'
+						];
 						
-						// Check if window.siteConfig exists after loading
+						// If we have a saved path, try it first
+						if (savedConfigPath) {
+							console.log("Using previously saved config path:", savedConfigPath);
+							loadConfigFromPath(savedConfigPath, function(success) {
+								if (!success) {
+									// If saved path failed, try to detect configs
+									detectConfigs(possiblePaths);
+								}
+							});
+						} else {
+							// Otherwise try to detect configs
+							detectConfigs(possiblePaths);
+						}
+						
+						return false;
+					}
+					return true;
+				}
+
+				// Function to detect configs from multiple paths
+				function detectConfigs(paths) {
+					const configOptions = document.getElementById('config-options');
+					if (configOptions) {
+						configOptions.innerHTML = '<div class="loading">Detecting configurations...</div>';
+					}
+					
+					// Use a Set to track unique paths
+					const uniquePathsSet = new Set();
+					let detectionComplete = 0;
+					
+					// Check each path
+					paths.forEach(function(path) {
+						checkConfigExists(path, function(exists) {
+							detectionComplete++;
+							
+							if (exists) {
+								// Add to our set of unique paths
+								uniquePathsSet.add(path);
+							}
+							
+							// Once all paths have been checked
+							if (detectionComplete === paths.length) {
+								// Convert Set to Array for displaying
+								const detectedConfigs = Array.from(uniquePathsSet);
+								displayDetectedConfigs(detectedConfigs);
+								
+								// If only one config was found, use it automatically
+								if (detectedConfigs.length === 1) {
+									loadConfigFromPath(detectedConfigs[0]);
+								} 
+								// If no configs were found, show message
+								else if (detectedConfigs.length === 0) {
+									// Try to use a default config
+									console.error('No config.js files detected in common locations');
+									window.siteConfig = {
+										// Default values
+										site: {
+											name: "Site Configuration",
+											tagline: "Configure your site",
+											// Other defaults...
+										},
+										// Additional defaults...
+									};
+									console.warn("Using default config values");
+									
+									// Update the UI
+									if (configOptions) {
+										configOptions.innerHTML = '<div class="no-configs">No configuration files detected. Please enter a path manually.</div>';
+									}
+								}
+							}
+						});
+					});
+				}
+
+				// Function to check if a config exists at a given path
+				function checkConfigExists(path, callback) {
+					const fullPath = path.startsWith('http') ? path : window.location.origin + (path.startsWith('/') ? '' : '/') + path;
+					
+					// Use fetch to check if the file exists
+					fetch(fullPath, { method: 'HEAD' })
+						.then(response => {
+							callback(response.ok);
+						})
+						.catch(() => {
+							callback(false);
+						});
+				}
+
+				// Function to display detected configs
+				function displayDetectedConfigs(configs) {
+					const configOptions = document.getElementById('config-options');
+					if (!configOptions) return;
+					
+					if (configs.length === 0) {
+						configOptions.innerHTML = '<div class="no-configs">No configuration files detected. Please enter a path manually.</div>';
+						return;
+					}
+					
+					configOptions.innerHTML = '';
+					
+					configs.forEach(path => {
+						const configBtn = document.createElement('button');
+						configBtn.className = 'config-option-btn';
+						configBtn.textContent = path;
+						configBtn.style.padding = '8px 12px';
+						configBtn.style.backgroundColor = 'var(--primary-color)';
+						configBtn.style.color = 'var(--text-color)';
+						configBtn.style.border = 'none';
+						configBtn.style.borderRadius = '5px';
+						configBtn.style.cursor = 'pointer';
+						
+						configBtn.addEventListener('click', function() {
+							document.getElementById('config-path').value = path;
+							loadConfigFromPath(path);
+						});
+						
+						configOptions.appendChild(configBtn);
+					});
+				}
+
+				// Function to load config from a specific path
+				function loadConfigFromPath(path, callback) {
+					console.log("Loading config from path:", path);
+					
+					// First, reset any existing config
+					window.siteConfig = undefined;
+					
+					const configScript = document.createElement('script');
+					configScript.src = path;
+					
+					configScript.onload = function() {
+						console.log('Successfully loaded config.js from:', path);
+						
+						// Update the input field with the path
+						const configPathInput = document.getElementById('config-path');
+						if (configPathInput) {
+							configPathInput.value = path;
+						}
+						
+						// Save the path to localStorage for future use
+						localStorage.setItem('savedConfigPath', path);
+						
+						// Populate the form if config was found
 						if (window.siteConfig) {
-							console.log("Found existing siteConfig, populating form fields...");
 							populateFormFromConfig(window.siteConfig);
+							if (callback) callback(true);
 						} else {
 							console.warn("Config file loaded but siteConfig object not found");
+							if (callback) callback(false);
 						}
 					};
 					
-					// Handle load errors
 					configScript.onerror = function() {
-						console.warn("Could not load config.js file - using defaults");
+						console.error('Failed to load config.js from:', path);
+						if (callback) callback(false);
 					};
 					
-					// Add the script to the document to start loading
 					document.head.appendChild(configScript);
 				}
 
@@ -3645,5 +4024,105 @@
                 init();
             });
         </script>
+		<script>
+			// Strain Tree section save/load handlers
+			function saveStrainTreeConfig() {
+				const strainTreeConfig = {
+					enabled: document.getElementById('enable-strain-tree').value === 'true',
+					title: document.getElementById('strain-tree-title').value,
+					description: document.getElementById('strain-tree-description').value,
+					dataPath: document.getElementById('strain-data-path').value || 'data/straindata.json'
+				};
+				
+				localStorage.setItem('strainTreeConfig', JSON.stringify(strainTreeConfig));
+			}
+			
+			function loadStrainTreeConfig() {
+				const savedConfig = localStorage.getItem('strainTreeConfig');
+				if (savedConfig) {
+					try {
+						const config = JSON.parse(savedConfig);
+						document.getElementById('enable-strain-tree').value = config.enabled ? 'true' : 'false';
+						document.getElementById('strain-tree-title').value = config.title || 'Strain Genetics Explorer';
+						document.getElementById('strain-tree-description').value = config.description || 'Explore the genetic relationships between our strains.';
+						document.getElementById('strain-data-path').value = config.dataPath || 'data/straindata.json';
+					} catch (error) {
+						console.error('Error loading strain tree config:', error);
+					}
+				}
+			}
+			
+			// Add event listeners for strain tree form fields
+			document.getElementById('enable-strain-tree').addEventListener('change', saveStrainTreeConfig);
+			document.getElementById('strain-tree-title').addEventListener('input', saveStrainTreeConfig);
+			document.getElementById('strain-tree-description').addEventListener('input', saveStrainTreeConfig);
+			document.getElementById('strain-data-path').addEventListener('input', saveStrainTreeConfig);
+			
+			// Load saved config when page loads
+			document.addEventListener('DOMContentLoaded', function() {
+				loadStrainTreeConfig();
+			});
+			
+			// Add strain tree config to the main config generation
+			const originalGenerateConfig = window.generateConfig || function() { return {}; };
+			window.generateConfig = function() {
+				const config = originalGenerateConfig();
+				
+				// Add strain tree config - FIXED boolean conversion
+				const strainTreeEnabled = document.getElementById('enable-strain-tree').value;
+				
+				config.strainTree = {
+					enabled: strainTreeEnabled === 'true', // This will properly convert string 'false' to boolean false
+					title: document.getElementById('strain-tree-title').value,
+					description: document.getElementById('strain-tree-description').value,
+					dataPath: document.getElementById('strain-data-path').value || 'data/straindata.json'
+				};
+				
+				// Log the actual value being set to help with debugging
+				console.log('Setting strainTree.enabled to:', strainTreeEnabled === 'true', 
+							'from dropdown value:', strainTreeEnabled);
+				
+				return config;
+			};
+		</script>
+		<script>
+		// Add cache-busting parameter to all existing images on the page
+		document.addEventListener('DOMContentLoaded', function() {
+		  const sessionId = localStorage.getItem('configSessionId');
+		  if (!sessionId) return;
+		  
+		  // Process all images
+		  const images = document.querySelectorAll('img');
+		  images.forEach(img => {
+			if (img.src) {
+			  const url = new URL(img.src);
+			  url.searchParams.set('_cb', sessionId);
+			  img.src = url.toString();
+			}
+		  });
+		  
+		  // Process background images in style attributes
+		  const elementsWithBackgroundImage = document.querySelectorAll('[style*="background-image"]');
+		  elementsWithBackgroundImage.forEach(el => {
+			const style = el.getAttribute('style');
+			if (style && style.includes('url(')) {
+			  // Extract URL from background-image style
+			  const urlMatch = style.match(/url\(['"]?([^'")]+)['"]?\)/);
+			  if (urlMatch && urlMatch[1]) {
+				let imageUrl = urlMatch[1];
+				const separator = imageUrl.includes('?') ? '&' : '?';
+				const newUrl = `${imageUrl}${separator}_cb=${sessionId}`;
+				// Replace the URL in the style attribute
+				const newStyle = style.replace(imageUrl, newUrl);
+				el.setAttribute('style', newStyle);
+			  }
+			}
+		  });
+		  
+		  // Clear any existing image cache in localStorage
+		  // We need to do this to ensure our images and image library are in sync
+		  localStorage.removeItem('savedImages');
+		});
+		</script>		
     </body>
     </html>
