@@ -554,22 +554,36 @@ document.createElement = function(tagName) {
 					<p class="help-text">Email address where orders will be sent. If left empty, the Contact Email will be used.</p>
 				</div>
                 
-                <h3>Social Links</h3>
-                
-                <div class="form-group">
-                    <label for="social-discord">Discord</label>
-                    <input type="url" id="social-discord" value="https://discord.gg/yourcollective">
-                </div>
-                
-                <div class="form-group">
-                    <label for="social-youtube">YouTube</label>
-                    <input type="url" id="social-youtube" value="https://youtube.com/@yourchannel">
-                </div>
-                
-                <div class="form-group">
-                    <label for="social-tiktok">TikTok</label>
-                    <input type="url" id="social-tiktok" value="https://tiktok.com/@yourhandle">
-                </div>
+				<h3>Social Links</h3>
+				<p>Add your social media links. These will appear in the footer contact section.</p>
+
+				<div id="social-links">
+					<div class="form-group social-item">
+						<div style="display: flex; gap: 10px;">
+							<input type="text" placeholder="Platform Name (e.g. Discord)" value="Discord" style="flex: 1;">
+							<input type="url" placeholder="URL" value="https://discord.gg/yourcollective" style="flex: 2;">
+							<button type="button" class="btn remove-social-btn">×</button>
+						</div>
+					</div>
+					
+					<div class="form-group social-item">
+						<div style="display: flex; gap: 10px;">
+							<input type="text" placeholder="Platform Name (e.g. YouTube)" value="YouTube" style="flex: 1;">
+							<input type="url" placeholder="URL" value="https://youtube.com/@yourchannel" style="flex: 2;">
+							<button type="button" class="btn remove-social-btn">×</button>
+						</div>
+					</div>
+					
+					<div class="form-group social-item">
+						<div style="display: flex; gap: 10px;">
+							<input type="text" placeholder="Platform Name (e.g. Instagram)" value="Instagram" style="flex: 1;">
+							<input type="url" placeholder="URL" value="https://instagram.com/yourhandle" style="flex: 2;">
+							<button type="button" class="btn remove-social-btn">×</button>
+						</div>
+					</div>
+				</div>
+
+				<button type="button" class="btn" id="add-social-btn">Add Social Link</button>
                 
                 <div class="form-group">
                     <label for="copyright-text">Copyright Text</label>
@@ -969,6 +983,25 @@ document.createElement = function(tagName) {
 									<div id="additional-images" style="max-height: 120px; overflow-y: auto; border: 1px solid var(--primary-color); border-radius: 5px; padding: 5px; background: rgba(0, 0, 0, 0.2);"></div>
 								</div>
 							</div>
+
+							<!-- Add this after the Additional Images section in the product editor modal -->
+							<div class="form-group">
+								<label for="product-enable-hover" style="color: var(--secondary-color);">Enable Hover Image</label>
+								<select id="product-enable-hover">
+									<option value="false" selected>No</option>
+									<option value="true">Yes</option>
+								</select>
+								<p style="font-size: 0.8rem; color: #aaa; margin-top: 3px;">Show an additional image when hovering over product card.</p>
+							</div>
+
+							<div class="form-group" id="hover-image-group" style="display: none;">
+								<label for="product-hover-image" style="color: var(--secondary-color);">Hover Image</label>
+								<select id="product-hover-image" style="width: 100%;">
+									<option value="">— First Additional Image —</option>
+									<!-- Options will be populated dynamically -->
+								</select>
+								<p style="font-size: 0.8rem; color: #aaa; margin-top: 3px;">If not selected, the first additional image will be used.</p>
+							</div>
 							
 							<!-- Right Column - Details and Options -->
 							<div style="background: rgba(10, 14, 23, 0.9); padding: 15px; border-radius: 10px; border: 1px solid var(--primary-color);">
@@ -1027,6 +1060,27 @@ document.createElement = function(tagName) {
             <!-- Advanced Section -->
             <div class="config-section" id="advanced-section">
                 <h2>Advanced Settings</h2>
+
+				<div class="form-group">
+					<label for="enable-age-check">Enable Age Verification</label>
+					<select id="enable-age-check">
+						<option value="false" selected>No</option>
+						<option value="true">Yes</option>
+					</select>
+					<p class="help-text">Show an age verification popup when visitors first enter the site. Visitors must confirm they are 21+ to continue.</p>
+				</div>
+
+				<div class="form-group" id="age-check-settings" style="display: none;">
+					<label for="age-check-minimum">Minimum Age Required</label>
+					<input type="number" id="age-check-minimum" value="21" min="13" max="99">
+					<p class="help-text">Minimum age required to enter the site (default: 21)</p>
+				</div>
+
+				<div class="form-group" id="age-check-redirect" style="display: none;">
+					<label for="age-redirect-url">Redirect URL for Under-Age Users</label>
+					<input type="url" id="age-redirect-url" value="https://www.google.com" placeholder="https://www.google.com">
+					<p class="help-text">URL to redirect users who don't meet the age requirement</p>
+				</div>
 
 				<div class="form-group">
 					<label for="enable-shop">Enable Shopping Cart</label>
@@ -1319,6 +1373,21 @@ document.createElement = function(tagName) {
     <script>
 	
         document.addEventListener('DOMContentLoaded', function() {
+		
+			// Show/hide age check settings based on selection
+			document.getElementById('enable-age-check').addEventListener('change', function() {
+				const ageCheckSettings = document.getElementById('age-check-settings');
+				const ageCheckRedirect = document.getElementById('age-check-redirect');
+				
+				if (this.value === 'true') {
+					ageCheckSettings.style.display = 'block';
+					ageCheckRedirect.style.display = 'block';
+				} else {
+					ageCheckSettings.style.display = 'none';
+					ageCheckRedirect.style.display = 'none';
+				}
+			});
+		
             // Tab switching
             document.querySelectorAll('.config-tab').forEach(tab => {
                 tab.addEventListener('click', function() {
@@ -1437,6 +1506,38 @@ document.createElement = function(tagName) {
 							}
 						});
 						localStorage.setItem('friendLinks', JSON.stringify(currentLinks));
+					}
+				}
+			});
+
+			// Add social link
+			document.getElementById('add-social-btn').addEventListener('click', function() {
+				const socialLinks = document.getElementById('social-links');
+				
+				const newItem = document.createElement('div');
+				newItem.className = 'form-group social-item';
+				newItem.innerHTML = `
+					<div style="display: flex; gap: 10px;">
+						<input type="text" placeholder="Platform Name" style="flex: 1;">
+						<input type="url" placeholder="URL" style="flex: 2;">
+						<button type="button" class="btn remove-social-btn">×</button>
+					</div>
+				`;
+				
+				socialLinks.appendChild(newItem);
+				
+				// Add event listener to remove button
+				newItem.querySelector('.remove-social-btn').addEventListener('click', function() {
+					socialLinks.removeChild(newItem);
+				});
+			});
+
+			// Remove social link
+			document.querySelector('#social-links').addEventListener('click', function(e) {
+				if (e.target.classList.contains('remove-social-btn')) {
+					const socialItem = e.target.closest('.form-group');
+					if (socialItem) {
+						socialItem.remove();
 					}
 				}
 			});
@@ -1724,7 +1825,18 @@ document.createElement = function(tagName) {
 				const productList = document.getElementById('product-list');
 				productList.innerHTML = '';
 				
-				Object.values(products).forEach(product => {
+				// Convert to array and ensure display order
+				const productsArray = Object.values(products);
+				
+				// Sort products by displayOrder if it exists
+				productsArray.sort((a, b) => {
+					// Default to end of list if displayOrder is not set
+					const orderA = a.displayOrder !== undefined ? a.displayOrder : 999;
+					const orderB = b.displayOrder !== undefined ? b.displayOrder : 999;
+					return orderA - orderB;
+				});
+				
+				productsArray.forEach((product, index) => {
 					let imagePath = product.image;
 					if (!imagePath && product.additionalImages && product.additionalImages.length > 0) {
 						imagePath = product.additionalImages[0];
@@ -1748,20 +1860,38 @@ document.createElement = function(tagName) {
 						statusHTML = '<span style="background-color: #6A0DAD; color: white; padding: 3px 8px; border-radius: 3px; font-weight: bold;">COMING SOON</span>';
 					}
 					
+					// Add visibility indicator and reordering controls
+					const visibilityStatus = product.hidden ? 
+						'<span style="background-color: #888; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 5px;">HIDDEN</span>' : 
+						'<span style="background-color: #4CAF50; color: white; padding: 3px 8px; border-radius: 3px; margin-right: 5px;">VISIBLE</span>';
+					
 					const productItem = document.createElement('div');
 					productItem.className = 'product-item';
 					productItem.innerHTML = `
 						<div style="display: flex; justify-content: space-between; align-items: center; 
 									background: rgba(10, 14, 23, 0.8); padding: 15px; margin-bottom: 10px; 
 									border-radius: 5px; border: 1px solid var(--primary-color);">
-							<div>
+							<div style="display: flex; align-items: center; flex: 1;">
+								<span class="product-order" style="margin-right: 10px; font-weight: bold; min-width: 30px;">#${product.displayOrder || index + 1}</span>
 								<img src="${imagePath}" style="width: 50px; height: 50px; object-fit: cover; 
 														 border-radius: 5px; margin-right: 15px; 
 														 vertical-align: middle;">
 								<span style="font-weight: bold;">${product.name}</span>
 							</div>
-							<div>
+							<div style="display: flex; align-items: center;">
+								${visibilityStatus}
 								${statusHTML}
+								<div class="order-controls" style="margin: 0 10px;">
+									<button class="btn move-up-btn" data-product-id="${product.id}" style="margin-right: 5px;" title="Move Up">
+										↑
+									</button>
+									<button class="btn move-down-btn" data-product-id="${product.id}" style="margin-right: 5px;" title="Move Down">
+										↓
+									</button>
+								</div>
+								<button class="btn toggle-visibility-btn" data-product-id="${product.id}" style="margin-right: 5px;">
+									${product.hidden ? 'Show' : 'Hide'}
+								</button>
 								<button class="btn edit-product-btn" data-product-id="${product.id}" style="margin-right: 5px;">
 									Edit
 								</button>
@@ -1790,6 +1920,122 @@ document.createElement = function(tagName) {
 						deleteProduct(productId);
 					});
 				});
+				
+				// Add event listeners for visibility toggle
+				document.querySelectorAll('.toggle-visibility-btn').forEach(btn => {
+					btn.addEventListener('click', function() {
+						const productId = this.getAttribute('data-product-id');
+						toggleProductVisibility(productId);
+					});
+				});
+				
+				// Add event listeners for order controls
+				document.querySelectorAll('.move-up-btn').forEach(btn => {
+					btn.addEventListener('click', function(e) {
+						e.stopPropagation();
+						const productId = this.getAttribute('data-product-id');
+						moveProductUp(productId);
+					});
+				});
+				
+				document.querySelectorAll('.move-down-btn').forEach(btn => {
+					btn.addEventListener('click', function(e) {
+						e.stopPropagation();
+						const productId = this.getAttribute('data-product-id');
+						moveProductDown(productId);
+					});
+				});
+			}
+
+			function toggleProductVisibility(productId) {
+				const products = JSON.parse(localStorage.getItem('siteProducts') || '{}');
+				
+				if (products[productId]) {
+					// Toggle the hidden flag
+					products[productId].hidden = !products[productId].hidden;
+					
+					// Save updated products
+					localStorage.setItem('siteProducts', JSON.stringify(products));
+					
+					// Re-render product list
+					renderProductList(products);
+				}
+			}
+
+			function moveProductUp(productId) {
+				const products = JSON.parse(localStorage.getItem('siteProducts') || '{}');
+				
+				// Convert to array and ensure display order is set
+				const productsArray = Object.values(products);
+				
+				// Make sure all products have displayOrder
+				productsArray.forEach((product, index) => {
+					if (product.displayOrder === undefined) {
+						product.displayOrder = index + 1;
+					}
+				});
+				
+				// Sort by current display order
+				productsArray.sort((a, b) => a.displayOrder - b.displayOrder);
+				
+				// Find the product to move
+				const productIndex = productsArray.findIndex(p => p.id === productId);
+				
+				if (productIndex > 0) {
+					// Swap display orders with the product above it
+					const temp = productsArray[productIndex].displayOrder;
+					productsArray[productIndex].displayOrder = productsArray[productIndex - 1].displayOrder;
+					productsArray[productIndex - 1].displayOrder = temp;
+					
+					// Update the products object
+					productsArray.forEach(product => {
+						products[product.id] = product;
+					});
+					
+					// Save updated products
+					localStorage.setItem('siteProducts', JSON.stringify(products));
+					
+					// Re-render product list
+					renderProductList(products);
+				}
+			}
+
+			function moveProductDown(productId) {
+				const products = JSON.parse(localStorage.getItem('siteProducts') || '{}');
+				
+				// Convert to array and ensure display order is set
+				const productsArray = Object.values(products);
+				
+				// Make sure all products have displayOrder
+				productsArray.forEach((product, index) => {
+					if (product.displayOrder === undefined) {
+						product.displayOrder = index + 1;
+					}
+				});
+				
+				// Sort by current display order
+				productsArray.sort((a, b) => a.displayOrder - b.displayOrder);
+				
+				// Find the product to move
+				const productIndex = productsArray.findIndex(p => p.id === productId);
+				
+				if (productIndex < productsArray.length - 1) {
+					// Swap display orders with the product below it
+					const temp = productsArray[productIndex].displayOrder;
+					productsArray[productIndex].displayOrder = productsArray[productIndex + 1].displayOrder;
+					productsArray[productIndex + 1].displayOrder = temp;
+					
+					// Update the products object
+					productsArray.forEach(product => {
+						products[product.id] = product;
+					});
+					
+					// Save updated products
+					localStorage.setItem('siteProducts', JSON.stringify(products));
+					
+					// Re-render product list
+					renderProductList(products);
+				}
 			}
 
 			function setupDeliveryTypeHandler() {
@@ -1861,7 +2107,7 @@ document.createElement = function(tagName) {
 
 				// Update product type dropdown with current terminology
 				updateProductTypeDropdown();
-	
+
 				const isNewProduct = !product;
 				
 				// Set form values safely
@@ -1886,7 +2132,76 @@ document.createElement = function(tagName) {
 				safeSetValue('product-rarity', isNewProduct ? '' : (product.rarity || ''));
 				safeSetValue('product-details', isNewProduct ? '' : product.details);
 				safeSetValue('product-notes', isNewProduct ? '' : product.notes);
+				safeSetValue('product-enable-hover', isNewProduct ? 'false' : (product.enableHoverImage ? 'true' : 'false'));
+
+				// Set hidden flag - determine if product should be hidden
+				const isHidden = isNewProduct ? false : !!product.hidden;
 				
+				// Create or update the visibility control
+				let visibilityGroup = document.getElementById('product-visibility-group');
+				if (!visibilityGroup) {
+					// Create the element if it doesn't exist
+					visibilityGroup = document.createElement('div');
+					visibilityGroup.id = 'product-visibility-group';
+					visibilityGroup.className = 'form-group';
+					visibilityGroup.innerHTML = `
+						<label for="product-visibility" style="color: var(--secondary-color);">Product Visibility</label>
+						<select id="product-visibility">
+							<option value="visible" ${!isHidden ? 'selected' : ''}>Visible - Show in product list</option>
+							<option value="hidden" ${isHidden ? 'selected' : ''}>Hidden - Keep in database but don't display</option>
+						</select>
+						<p style="font-size: 0.8rem; color: #aaa; margin-top: 3px;">Hidden products are saved but not displayed on your site.</p>
+					`;
+					
+					// Find the right location to insert it - after product ID field
+					const productIdField = document.getElementById('product-id');
+					if (productIdField && productIdField.parentNode) {
+						const parentNode = productIdField.closest('.form-group').parentNode;
+						const productIdGroup = productIdField.closest('.form-group');
+						parentNode.insertBefore(visibilityGroup, productIdGroup.nextSibling);
+					}
+				} else {
+					// If it exists, just update the select value
+					const visibilitySelect = visibilityGroup.querySelector('select');
+					if (visibilitySelect) {
+						visibilitySelect.value = isHidden ? 'hidden' : 'visible';
+					}
+				}
+
+				const enableHoverSelect = document.getElementById('product-enable-hover');
+				const hoverImageGroup = document.getElementById('hover-image-group');
+				if (enableHoverSelect && hoverImageGroup) {
+					if (enableHoverSelect.value === 'true') {
+						hoverImageGroup.style.display = 'block';
+						
+						// Populate the hover image select
+						const hoverImageSelect = document.getElementById('product-hover-image');
+						if (hoverImageSelect) {
+							// Clear existing options except the default one
+							while (hoverImageSelect.options.length > 1) {
+								hoverImageSelect.remove(1);
+							}
+							
+							// Add options for each additional image
+							if (!isNewProduct && product.additionalImages) {
+								product.additionalImages.forEach((img, index) => {
+									const option = document.createElement('option');
+									option.value = img;
+									option.textContent = `Image ${index + 1}: ${img}`;
+									hoverImageSelect.appendChild(option);
+									
+									// Select the current hover image if it exists
+									if (product.hoverImage && product.hoverImage === img) {
+										option.selected = true;
+									}
+								});
+							}
+						}
+					} else {
+						hoverImageGroup.style.display = 'none';
+					}
+				}
+
 				// Set product type
 				const typeSelect = document.getElementById('product-type');
 				if (typeSelect && !isNewProduct) {
@@ -2019,6 +2334,48 @@ document.createElement = function(tagName) {
 					"deliveryType": currentDeliveryType,
 					"packOptionsSectionExists": !!packOptionsSection,
 					"packOptionsSectionDisplay": packOptionsSection ? packOptionsSection.style.display : 'N/A'
+				});
+			}
+
+			function setupHoverImageHandlers() {
+				const enableHoverSelect = document.getElementById('product-enable-hover');
+				const hoverImageGroup = document.getElementById('hover-image-group');
+				
+				if (enableHoverSelect) {
+					enableHoverSelect.addEventListener('change', function() {
+						if (this.value === 'true') {
+							hoverImageGroup.style.display = 'block';
+							updateHoverImageOptions();
+						} else {
+							hoverImageGroup.style.display = 'none';
+						}
+					});
+				}
+			}
+
+			// Function to update hover image options based on available additional images
+			function updateHoverImageOptions() {
+				const hoverImageSelect = document.getElementById('product-hover-image');
+				const additionalImages = [];
+				
+				// Get all additional images from the form
+				document.querySelectorAll('#additional-images input').forEach(input => {
+					if (input.value.trim()) {
+						additionalImages.push(input.value.trim());
+					}
+				});
+				
+				// Clear existing options except the default one
+				while (hoverImageSelect.options.length > 1) {
+					hoverImageSelect.remove(1);
+				}
+				
+				// Add options for each additional image
+				additionalImages.forEach((img, index) => {
+					const option = document.createElement('option');
+					option.value = img;
+					option.textContent = `Image ${index + 1}: ${img}`;
+					hoverImageSelect.appendChild(option);
 				});
 			}
 
@@ -2282,6 +2639,10 @@ document.createElement = function(tagName) {
 				const productDelivery = document.getElementById('product-delivery').value;
 				const digitalContent = document.getElementById('digital-content').value;
 				
+				// Get visibility status (add this)
+				const visibilitySelect = document.getElementById('product-visibility');
+				const isHidden = visibilitySelect ? visibilitySelect.value === 'hidden' : false;
+				
 				// Strip "img/" prefix if it exists
 				let productImage = document.getElementById('product-image').value;
 				if (productImage.startsWith('img/')) {
@@ -2319,23 +2680,47 @@ document.createElement = function(tagName) {
 				document.querySelectorAll('#pack-options .pack-option').forEach(packEl => {
 					const inputs = packEl.querySelectorAll('input');
 					
-					const size = inputs[0].value;
-					// Parse the values as floats first
-					const regularPrice = parseFloat(inputs[1].value);
-					const salePrice = parseFloat(inputs[2].value);
-					
-					if (size && !isNaN(regularPrice) && !isNaN(salePrice)) {
-						packOptions.push({
-							size,
-							// Store the exact values with 2 decimal places
-							regularPrice: regularPrice.toFixed(2),
-							salePrice: salePrice.toFixed(2)
-						});
+					if (inputs.length >= 3) {
+						const size = inputs[0].value.trim();
+						
+						// Handle the price values properly regardless of format
+						let regularPrice = inputs[1].value.trim();
+						let salePrice = inputs[2].value.trim();
+						
+						// If they're not empty, convert to numbers
+						if (size && regularPrice && salePrice) {
+							// Remove any quotes and convert to numbers
+							regularPrice = Number(regularPrice.replace(/"/g, ''));
+							salePrice = Number(salePrice.replace(/"/g, ''));
+							
+							// Add to pack options
+							packOptions.push({
+								size: size,
+								regularPrice: regularPrice,
+								salePrice: salePrice
+							});
+						}
 					}
 				});
 				
 				// Get products from localStorage
 				const products = JSON.parse(localStorage.getItem('siteProducts') || '{}');
+				
+				// If this is a new product, assign a display order at the end
+				let displayOrder;
+				if (!products[productId]) {
+					// Find the highest existing display order
+					const maxOrder = Object.values(products).reduce((max, product) => {
+						return product.displayOrder !== undefined && product.displayOrder > max ? 
+							product.displayOrder : max;
+					}, 0);
+					
+					// Set new product's order to maxOrder + 1
+					displayOrder = maxOrder + 1;
+				} else {
+					// Keep existing display order
+					displayOrder = products[productId].displayOrder;
+				}
 				
 				// Create or update product - maintain all fields
 				products[productId] = {
@@ -2354,7 +2739,12 @@ document.createElement = function(tagName) {
 					rarity: productRarity,
 					details: productDetails,
 					notes: productNotes,
-					packOptions: packOptions
+					packOptions: packOptions,
+					enableHoverImage: document.getElementById('product-enable-hover').value === 'true',
+					hoverImage: document.getElementById('product-enable-hover').value === 'true' ? 
+						document.getElementById('product-hover-image').value : '',
+					hidden: isHidden,  // Add the hidden flag
+					displayOrder: displayOrder  // Add the display order
 				};
 				
 				// For debugging - check what's being saved
@@ -2921,6 +3311,18 @@ document.createElement = function(tagName) {
 						}
 					});
 					
+					// Get social links
+					const socialLinks = [];
+					document.querySelectorAll('#social-links .form-group').forEach(item => {
+						const inputs = item.querySelectorAll('input');
+						if (inputs[0].value && inputs[1].value) {
+							socialLinks.push({
+								name: inputs[0].value,
+								url: inputs[1].value
+							});
+						}
+					});
+					
 					// Get friend links
 					const friendLinks = [];
 					document.querySelectorAll('#friend-links .form-group').forEach(item => {
@@ -2952,11 +3354,7 @@ document.createElement = function(tagName) {
 							heroBackground: document.getElementById('hero-background').value,
 							showHeroText: document.getElementById('show-hero-text').value === 'true',
 							email: document.getElementById('site-email').value,
-							socialLinks: {
-								discord: document.getElementById('social-discord').value,
-								youtube: document.getElementById('social-youtube').value,
-								tiktok: document.getElementById('social-tiktok').value
-							},
+							socialLinks: socialLinks,
 							copyright: document.getElementById('copyright-text').value
 						},
 						colors: {
@@ -3026,7 +3424,10 @@ document.createElement = function(tagName) {
 							checkoutMethod: document.getElementById('checkout-method').value,
 							externalCheckoutUrl: document.getElementById('external-checkout-url').value,
 							analyticsId: document.getElementById('analytics-id').value,
-							orderEmail: document.getElementById('order-email').value
+							orderEmail: document.getElementById('order-email').value,
+							enableAgeCheck: document.getElementById('enable-age-check').value === 'true',
+							ageCheckMinimum: parseInt(document.getElementById('age-check-minimum').value) || 21,
+							ageRedirectUrl: document.getElementById('age-redirect-url').value || 'https://www.google.com'
 						}
 					};
 				}
@@ -3241,14 +3642,26 @@ document.createElement = function(tagName) {
 					const saveFormValues = debounce(function() {
 						const formValues = {};
 						
-						// Loop through all inputs and save their values
+						// Loop through all inputs and save their values - BUT EXCLUDE DYNAMIC FORM ITEMS
 						allInputs.forEach(input => {
 							// Get a unique identifier for each input
 							const id = input.id || input.name;
-							if (id) {
+							if (id && !input.closest('#social-links') && !input.closest('#nav-items') && !input.closest('#friend-links')) {
 								formValues[id] = input.type === 'checkbox' ? input.checked : input.value;
 							}
 						});
+						
+						// Explicitly save background image fields to ensure they're captured
+						const backgroundImageField = document.getElementById('background-image');
+						const sectionImageField = document.getElementById('section-image');
+						
+						if (backgroundImageField) {
+							formValues['background-image'] = backgroundImageField.value;
+						}
+						
+						if (sectionImageField) {
+							formValues['section-image'] = sectionImageField.value;
+						}
 						
 						// Save navigation items separately
 						const navItems = [];
@@ -3263,6 +3676,19 @@ document.createElement = function(tagName) {
 						});
 						formValues['nav-items'] = navItems;
 						
+						// Save social links separately  
+						const socialLinks = [];
+						document.querySelectorAll('#social-links .social-item').forEach(item => {
+							const inputs = item.querySelectorAll('input');
+							if (inputs.length >= 2 && inputs[0].value && inputs[1].value) {
+								socialLinks.push({
+									name: inputs[0].value,
+									url: inputs[1].value
+								});
+							}
+						});
+						formValues['social-links'] = socialLinks;
+						
 						// Save friend links separately with StrainNavigator as the default first link
 						const friendLinks = [];
 						
@@ -3273,7 +3699,7 @@ document.createElement = function(tagName) {
 						});
 						
 						// Then add other friend links
-						document.querySelectorAll('#friend-links .form-group').forEach(item => {
+						document.querySelectorAll('#friend-links .friend-item').forEach(item => {
 							const inputs = item.querySelectorAll('input');
 							if (inputs.length >= 2 && inputs[0].value && inputs[1].value) {
 								// Skip if duplicate of default
@@ -3305,6 +3731,22 @@ document.createElement = function(tagName) {
 						input.addEventListener('input', saveFormValues);
 					});
 					
+					// Add specific listeners for background image fields to ensure they're saved
+					const backgroundImageField = document.getElementById('background-image');
+					const sectionImageField = document.getElementById('section-image');
+					
+					if (backgroundImageField) {
+						backgroundImageField.addEventListener('change', saveFormValues);
+						backgroundImageField.addEventListener('input', saveFormValues);
+						backgroundImageField.addEventListener('blur', saveFormValues); // Save on field blur too
+					}
+					
+					if (sectionImageField) {
+						sectionImageField.addEventListener('change', saveFormValues);
+						sectionImageField.addEventListener('input', saveFormValues);
+						sectionImageField.addEventListener('blur', saveFormValues); // Save on field blur too
+					}
+					
 					// Handle the preset theme selection
 					document.querySelectorAll('.preset-theme').forEach(theme => {
 						theme.addEventListener('click', function() {
@@ -3331,7 +3773,6 @@ document.createElement = function(tagName) {
 					});
 				}
 
-				// Enhanced loadFormValues function
 				function loadFormValues() {
 					const savedValues = localStorage.getItem('siteConfigForm');
 					if (!savedValues) {
@@ -3343,11 +3784,34 @@ document.createElement = function(tagName) {
 						const formValues = JSON.parse(savedValues);
 						console.log('Loading saved configuration');
 						
+						// Explicitly handle background and texture fields first to ensure they're loaded
+						if (formValues['background-image']) {
+							const backgroundField = document.getElementById('background-image');
+							if (backgroundField) {
+								backgroundField.value = formValues['background-image'];
+								console.log('Loaded background image:', formValues['background-image']);
+							}
+						}
+						
+						if (formValues['section-image']) {
+							const textureField = document.getElementById('section-image');
+							if (textureField) {
+								textureField.value = formValues['section-image'];
+								console.log('Loaded section image:', formValues['section-image']);
+							}
+						}
+						
 						// Loop through saved values and apply them to form elements
 						Object.keys(formValues).forEach(id => {
 							// Handle navigation items separately
 							if (id === 'nav-items') {
 								loadNavigationItems(formValues[id]);
+								return;
+							}
+							
+							// Handle social links separately
+							if (id === 'social-links') {
+								loadSocialLinks(formValues[id]);
 								return;
 							}
 							
@@ -3360,6 +3824,11 @@ document.createElement = function(tagName) {
 							// Handle active theme separately
 							if (id === 'active-theme') {
 								// We'll apply this later
+								return;
+							}
+							
+							// Skip background image fields as we handled them above
+							if (id === 'background-image' || id === 'section-image') {
 								return;
 							}
 							
@@ -3458,6 +3927,46 @@ document.createElement = function(tagName) {
 						});
 						
 						friendLinksContainer.appendChild(friendItem);
+					});
+				}
+
+				function loadSocialLinks(socialLinks) {
+					if (!Array.isArray(socialLinks)) socialLinks = [];
+					
+					const socialLinksContainer = document.getElementById('social-links');
+					if (!socialLinksContainer) return;
+					
+					// Clear existing items first
+					socialLinksContainer.innerHTML = '';
+					
+					// Add each saved social link (or create defaults if none exist)
+					if (socialLinks.length === 0) {
+						// Create default social links
+						socialLinks = [
+							{ name: 'Discord', url: 'https://discord.gg/yourcollective' },
+							{ name: 'YouTube', url: 'https://youtube.com/@yourchannel' },
+							{ name: 'Instagram', url: 'https://instagram.com/yourhandle' }
+						];
+					}
+					
+					socialLinks.forEach(link => {
+						const socialItem = document.createElement('div');
+						socialItem.className = 'form-group social-item';
+						socialItem.innerHTML = `
+							<div style="display: flex; gap: 10px;">
+								<input type="text" placeholder="Platform Name" value="${link.name || ''}" style="flex: 1;">
+								<input type="url" placeholder="URL" value="${link.url || ''}" style="flex: 2;">
+								<button type="button" class="btn remove-social-btn">×</button>
+							</div>
+						`;
+						
+						// Add event listener to remove button
+						const removeBtn = socialItem.querySelector('.remove-social-btn');
+						removeBtn.addEventListener('click', function() {
+							socialLinksContainer.removeChild(socialItem);
+						});
+						
+						socialLinksContainer.appendChild(socialItem);
 					});
 				}
 				
@@ -3630,6 +4139,15 @@ document.createElement = function(tagName) {
 						// Then setup auto-save functionality
 						setupAutoSave();
 						
+						setupHoverImageHandlers();
+
+						// Listen for changes to additional images to update hover image options
+						document.getElementById('additional-images').addEventListener('change', function() {
+							if (document.getElementById('product-enable-hover').value === 'true') {
+								updateHoverImageOptions();
+							}
+						});
+						
 						// Reset image prompt field when page loads
 						const imagePromptField = document.getElementById('image-prompt');
 						if (imagePromptField) {
@@ -3703,52 +4221,28 @@ document.createElement = function(tagName) {
 				function loadExistingConfig() {
 					console.log("Attempting to load existing config.js...");
 					
-					// Check if a path was previously saved in localStorage
-					const savedConfigPath = localStorage.getItem('savedConfigPath');
-					
 					// Only attempt to load if not already loaded
 					if (typeof window.siteConfig === 'undefined') {
-						// Common paths to try
-						const possiblePaths = [
-							// Local path - works for standard setups
-							'js/config.js',
-							
-							// Path based on current location
-							window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1) + 'js/config.js',
-							
-							// For /SITEPACKAGES/PUB/USERNAME/ structure
-							'/SITEPACKAGES/PUB/' + window.location.hostname.split('.')[0] + '/js/config.js',
-							
-							// For direct /SITEPACKAGES/ structure
-							'/SITEPACKAGES/js/config.js',
-							
-							// For username.github.io/reponame structure
-							'/' + window.location.pathname.split('/')[1] + '/js/config.js',
-							
-							// Absolute from domain root
-							'/js/config.js',
-							
-							// One level up (for setups in subdirectories)
-							'../js/config.js'
-						];
-						
-						// If we have a saved path, try it first
-						if (savedConfigPath) {
-							console.log("Using previously saved config path:", savedConfigPath);
-							loadConfigFromPath(savedConfigPath, function(success) {
-								if (!success) {
-									// If saved path failed, try to detect configs
-									detectConfigs(possiblePaths);
+						// Try to load directly from the website's js folder FIRST
+						loadConfigFromPath('js/config.js', function(success) {
+							if (success) {
+								console.log("Successfully loaded config from website");
+								populateFormFromConfig(window.siteConfig);
+							} else {
+								console.error('Failed to load config.js from website js/ folder');
+								// Show error message
+								const configOptions = document.getElementById('config-options');
+								if (configOptions) {
+									configOptions.innerHTML = '<div class="no-configs">Could not load config.js from website. Please enter path manually.</div>';
 								}
-							});
-						} else {
-							// Otherwise try to detect configs
-							detectConfigs(possiblePaths);
-						}
-						
+							}
+						});
 						return false;
+					} else {
+						// Config already loaded, populate the form
+						populateFormFromConfig(window.siteConfig);
+						return true;
 					}
-					return true;
 				}
 
 				// Function to detect configs from multiple paths
@@ -3904,13 +4398,6 @@ document.createElement = function(tagName) {
 						safeSetValue('show-hero-text', config.site.showHeroText === false ? 'false' : 'true');
 						safeSetValue('site-email', config.site.email);
 						safeSetValue('copyright-text', config.site.copyright);
-						
-						// Social links
-						if (config.site.socialLinks) {
-							safeSetValue('social-discord', config.site.socialLinks.discord);
-							safeSetValue('social-youtube', config.site.socialLinks.youtube);
-							safeSetValue('social-tiktok', config.site.socialLinks.tiktok);
-						}
 					}
 					
 					// Colors
@@ -3968,6 +4455,27 @@ document.createElement = function(tagName) {
 						safeSetValue('checkout-method', config.advanced.checkoutMethod);
 						safeSetValue('external-checkout-url', config.advanced.externalCheckoutUrl);
 						safeSetValue('analytics-id', config.advanced.analyticsId);
+						safeSetValue('enable-age-check', config.advanced.enableAgeCheck ? 'true' : 'false');
+						safeSetValue('age-check-minimum', config.advanced.ageCheckMinimum || 21);
+						safeSetValue('age-redirect-url', config.advanced.ageRedirectUrl || 'https://www.google.com');
+						
+						// Trigger the change event to show/hide age check settings
+						const enableAgeCheckSelect = document.getElementById('enable-age-check');
+						if (enableAgeCheckSelect) {
+							const event = new Event('change');
+							enableAgeCheckSelect.dispatchEvent(event);
+						}							
+					}
+					
+					// Handle background images specifically
+					if (config.background) {
+						safeSetValue('background-image', config.background.image || '');
+						safeSetValue('section-image', config.background.sectionImage || '');
+					}
+
+					// Social links
+					if (config.site && config.site.socialLinks) {
+						loadSocialLinks(config.site.socialLinks);
 					}
 					
 					// Navigation items
