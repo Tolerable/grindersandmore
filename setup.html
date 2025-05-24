@@ -542,6 +542,12 @@ document.createElement = function(tagName) {
 					</select>
 					<p class="help-text">Choose whether to show text over the hero image or display the full image without text overlay.</p>
 				</div>
+
+				<div class="form-group">
+					<label for="social-preview">Social Preview Image</label>
+					<input type="text" id="social-preview" placeholder="social-preview.jpg">
+					<p class="help-text">Image shown when your site is shared on social media. Recommended size: 1200x630px. Use the Image Generator tab to create one.</p>
+				</div>
                 
                 <div class="form-group">
                     <label for="site-email">Contact Email</label>
@@ -858,6 +864,7 @@ document.createElement = function(tagName) {
 					<select id="image-type">
 						<option value="logo">Logo (200x200)</option>
 						<option value="hero">Hero Background (1190x500)</option>
+						<option value="social">Social Preview (1200x630)</option>
 						<option value="product1">Product 1 (600x600)</option>
 						<option value="product2">Product 2 (600x600)</option>
 						<option value="product3">Product 3 (600x600)</option>
@@ -2840,6 +2847,10 @@ document.createElement = function(tagName) {
 						width = 1190;
 						height = 500;
 						break;
+					case 'social':
+						width = 1200;
+						height = 630;
+						break;						
 					case 'product1':
 					case 'product2':
 					case 'product3':
@@ -2913,6 +2924,9 @@ document.createElement = function(tagName) {
 						case 'hero':
 							filename = 'hero-bg.jpg';
 							break;
+						case 'social':
+							filename = 'social-preview.jpg';
+							break;							
 						case 'product1':
 						case 'product2':
 						case 'product3':
