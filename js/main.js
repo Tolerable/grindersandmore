@@ -575,6 +575,31 @@ function applySiteConfig() {
    document.querySelector('meta[property="og:url"]').setAttribute('content', url);
    document.querySelector('meta[property="og:title"]').setAttribute('content', siteConfig.site.name);
    document.querySelector('meta[property="og:description"]').setAttribute('content', siteConfig.site.tagline);
+
+   // Set social preview image
+	if (siteConfig.site.socialPreview) {
+		let socialImagePath = siteConfig.site.socialPreview;
+		if (!socialImagePath.startsWith('img/') && !socialImagePath.startsWith('/') && !socialImagePath.startsWith('http')) {
+			socialImagePath = 'img/' + socialImagePath;
+		}
+		const fullImageUrl = new URL(socialImagePath, window.location.origin).href;
+		
+		// Set both og:image and twitter:image
+		const ogImageTag = document.querySelector('meta[property="og:image"]');
+		const twitterImageTag = document.querySelector('meta[name="twitter:image"]');
+		
+		if (ogImageTag) {
+			ogImageTag.setAttribute('content', fullImageUrl);
+			console.log('Set og:image to:', fullImageUrl); // Debug log
+		} else {
+			console.error('og:image meta tag not found');
+		}
+		
+		if (twitterImageTag) {
+			twitterImageTag.setAttribute('content', fullImageUrl);
+			console.log('Set twitter:image to:', fullImageUrl); // Debug log
+		}
+	}
    
    // Fix logo path handling
    let logoPath = siteConfig.site.logo;
