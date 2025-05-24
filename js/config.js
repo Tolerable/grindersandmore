@@ -127,7 +127,8 @@
                 "origin": "Inhouse",
                 "details": "4 Oz. Jar Included.",
                 "notes": "Available as supply allows.",
-                "packOptions": []
+                "packOptions": [],
+                "hidden": true
             },
             "product-1744514401203": {
                 "id": "product-1744514401203",
@@ -148,7 +149,8 @@
                 "origin": "Inhouse",
                 "details": "Quality hand crafted cannagar now available at home!",
                 "notes": "Extra pieces available with request + shipping & handling.",
-                "packOptions": []
+                "packOptions": [],
+                "hidden": true
             },
             "product-1744515239442": {
                 "id": "product-1744515239442",
@@ -179,7 +181,8 @@
                         "regularPrice": 30,
                         "salePrice": 20
                     }
-                ]
+                ],
+                "hidden": false
             },
             "product-1744515636481": {
                 "id": "product-1744515636481",
@@ -235,7 +238,8 @@
                         "regularPrice": 12,
                         "salePrice": 10
                     }
-                ]
+                ],
+                "hidden": true
             },
             "product-1744517127437": {
                 "id": "product-1744517127437",
@@ -263,7 +267,8 @@
                         "regularPrice": 24,
                         "salePrice": 14
                     }
-                ]
+                ],
+                "hidden": true
             }
         }
     },
