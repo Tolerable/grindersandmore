@@ -576,28 +576,38 @@ function applySiteConfig() {
    document.querySelector('meta[property="og:title"]').setAttribute('content', siteConfig.site.name);
    document.querySelector('meta[property="og:description"]').setAttribute('content', siteConfig.site.tagline);
 
-   // Set social preview image
+	// Set social preview image
 	if (siteConfig.site.socialPreview) {
 		let socialImagePath = siteConfig.site.socialPreview;
-		if (!socialImagePath.startsWith('img/') && !socialImagePath.startsWith('/') && !socialImagePath.startsWith('http')) {
-			socialImagePath = 'img/' + socialImagePath;
-		}
-		const fullImageUrl = new URL(socialImagePath, window.location.origin).href;
 		
-		// Set both og:image and twitter:image
+		// Handle different path scenarios
+		if (socialImagePath.startsWith('http')) {
+			// Already a full URL
+			var fullImageUrl = socialImagePath;
+		} else if (socialImagePath.startsWith('/')) {
+			// Absolute path from root
+			var fullImageUrl = window.location.origin + socialImagePath;
+		} else {
+			// Relative path - could be in root or img folder
+			if (socialImagePath.includes('/') || socialImagePath.startsWith('img/')) {
+				var fullImageUrl = window.location.origin + '/' + socialImagePath;
+			} else {
+				// Assume it's in root if no path specified
+				var fullImageUrl = window.location.origin + '/' + socialImagePath;
+			}
+		}
+		
+		console.log('Social image URL:', fullImageUrl); // Debug log
+		
+		// Set the meta tags
 		const ogImageTag = document.querySelector('meta[property="og:image"]');
 		const twitterImageTag = document.querySelector('meta[name="twitter:image"]');
 		
 		if (ogImageTag) {
 			ogImageTag.setAttribute('content', fullImageUrl);
-			console.log('Set og:image to:', fullImageUrl); // Debug log
-		} else {
-			console.error('og:image meta tag not found');
 		}
-		
 		if (twitterImageTag) {
 			twitterImageTag.setAttribute('content', fullImageUrl);
-			console.log('Set twitter:image to:', fullImageUrl); // Debug log
 		}
 	}
    
