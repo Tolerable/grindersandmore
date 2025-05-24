@@ -571,45 +571,103 @@ function applySiteConfig() {
    document.querySelector('meta[name="description"]').setAttribute('content', siteConfig.site.tagline);
    
    // Set Open Graph meta tags
-   const url = window.location.href;
-   document.querySelector('meta[property="og:url"]').setAttribute('content', url);
+   const currentUrl = window.location.href.split('?')[0]; // Remove query parameters
+   document.querySelector('meta[property="og:url"]').setAttribute('content', currentUrl);
    document.querySelector('meta[property="og:title"]').setAttribute('content', siteConfig.site.name);
    document.querySelector('meta[property="og:description"]').setAttribute('content', siteConfig.site.tagline);
+   
+   // Set Twitter meta tags
+   document.querySelector('meta[name="twitter:url"]').setAttribute('content', currentUrl);
+   document.querySelector('meta[name="twitter:title"]').setAttribute('content', siteConfig.site.name);
+   document.querySelector('meta[name="twitter:description"]').setAttribute('content', siteConfig.site.tagline);
 
-	// Set social preview image
-	if (siteConfig.site.socialPreview) {
-		let socialImagePath = siteConfig.site.socialPreview;
-		
-		// Handle different path scenarios
-		if (socialImagePath.startsWith('http')) {
-			// Already a full URL
-			var fullImageUrl = socialImagePath;
-		} else if (socialImagePath.startsWith('/')) {
-			// Absolute path from root
-			var fullImageUrl = window.location.origin + socialImagePath;
-		} else {
-			// Relative path - could be in root or img folder
-			if (socialImagePath.includes('/') || socialImagePath.startsWith('img/')) {
-				var fullImageUrl = window.location.origin + '/' + socialImagePath;
-			} else {
-				// Assume it's in root if no path specified
-				var fullImageUrl = window.location.origin + '/' + socialImagePath;
-			}
-		}
-		
-		console.log('Social image URL:', fullImageUrl); // Debug log
-		
-		// Set the meta tags
-		const ogImageTag = document.querySelector('meta[property="og:image"]');
-		const twitterImageTag = document.querySelector('meta[name="twitter:image"]');
-		
-		if (ogImageTag) {
-			ogImageTag.setAttribute('content', fullImageUrl);
-		}
-		if (twitterImageTag) {
-			twitterImageTag.setAttribute('content', fullImageUrl);
-		}
-	}
+   // FIXED: Set social preview image properly
+   if (siteConfig.site.socialPreview) {
+       let socialImagePath = siteConfig.site.socialPreview;
+       let fullImageUrl;
+       
+       // Get the base URL without any filename
+       const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '');
+       
+       if (socialImagePath.startsWith('http://') || socialImagePath.startsWith('https://')) {
+           // Already a full URL
+           fullImageUrl = socialImagePath;
+       } else if (socialImagePath.startsWith('/')) {
+           // Absolute path from domain root
+           fullImageUrl = window.location.origin + socialImagePath;
+       } else {
+           // Relative path - construct full URL
+           if (socialImagePath.startsWith('img/')) {
+               // Has img/ prefix
+               fullImageUrl = baseUrl + '/' + socialImagePath;
+           } else {
+               // Just filename - assume it's in root directory
+               fullImageUrl = baseUrl + '/' + socialImagePath;
+           }
+       }
+       
+       console.log('Setting social image URL to:', fullImageUrl);
+       
+       // Set both Open Graph and Twitter meta tags
+       const ogImageTag = document.querySelector('meta[property="og:image"]');
+       const twitterImageTag = document.querySelector('meta[name="twitter:image"]');
+       
+       if (ogImageTag) {
+           ogImageTag.setAttribute('content', fullImageUrl);
+       } else {
+           // Create the tag if it doesn't exist
+           const newOgImageTag = document.createElement('meta');
+           newOgImageTag.setAttribute('property', 'og:image');
+           newOgImageTag.setAttribute('content', fullImageUrl);
+           document.head.appendChild(newOgImageTag);
+       }
+       
+       if (twitterImageTag) {
+           twitterImageTag.setAttribute('content', fullImageUrl);
+       } else {
+           // Create the tag if it doesn't exist
+           const newTwitterImageTag = document.createElement('meta');
+           newTwitterImageTag.setAttribute('name', 'twitter:image');
+           newTwitterImageTag.setAttribute('content', fullImageUrl);
+           document.head.appendChild(newTwitterImageTag);
+       }
+       
+       // Also add additional Open Graph image properties that some platforms require
+       const ogImageSecureUrl = document.querySelector('meta[property="og:image:secure_url"]');
+       if (!ogImageSecureUrl && fullImageUrl.startsWith('https://')) {
+           const secureUrlTag = document.createElement('meta');
+           secureUrlTag.setAttribute('property', 'og:image:secure_url');
+           secureUrlTag.setAttribute('content', fullImageUrl);
+           document.head.appendChild(secureUrlTag);
+       }
+       
+       // Add image dimensions if known or set defaults
+       const ogImageWidth = document.querySelector('meta[property="og:image:width"]');
+       const ogImageHeight = document.querySelector('meta[property="og:image:height"]');
+       
+       if (!ogImageWidth) {
+           const widthTag = document.createElement('meta');
+           widthTag.setAttribute('property', 'og:image:width');
+           widthTag.setAttribute('content', '1200'); // Standard social media width
+           document.head.appendChild(widthTag);
+       }
+       
+       if (!ogImageHeight) {
+           const heightTag = document.createElement('meta');
+           heightTag.setAttribute('property', 'og:image:height');
+           heightTag.setAttribute('content', '630'); // Standard social media height
+           document.head.appendChild(heightTag);
+       }
+       
+       // Add image type
+       const ogImageType = document.querySelector('meta[property="og:image:type"]');
+       if (!ogImageType) {
+           const typeTag = document.createElement('meta');
+           typeTag.setAttribute('property', 'og:image:type');
+           typeTag.setAttribute('content', 'image/jpeg'); // Assume JPEG, change if needed
+           document.head.appendChild(typeTag);
+       }
+   }
    
    // Fix logo path handling
    let logoPath = siteConfig.site.logo;
