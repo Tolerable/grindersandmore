@@ -3366,6 +3366,7 @@ document.createElement = function(tagName) {
 							tagline: document.getElementById('site-tagline').value,
 							logo: document.getElementById('site-logo').value,                            
 							heroBackground: document.getElementById('hero-background').value,
+							socialPreview: document.getElementById('social-preview').value,
 							showHeroText: document.getElementById('show-hero-text').value === 'true',
 							email: document.getElementById('site-email').value,
 							socialLinks: socialLinks,
@@ -3953,34 +3954,26 @@ document.createElement = function(tagName) {
 					// Clear existing items first
 					socialLinksContainer.innerHTML = '';
 					
-					// Add each saved social link (or create defaults if none exist)
-					if (socialLinks.length === 0) {
-						// Create default social links
-						socialLinks = [
-							{ name: 'Discord', url: 'https://discord.gg/yourcollective' },
-							{ name: 'YouTube', url: 'https://youtube.com/@yourchannel' },
-							{ name: 'Instagram', url: 'https://instagram.com/yourhandle' }
-						];
-					}
-					
 					socialLinks.forEach(link => {
-						const socialItem = document.createElement('div');
-						socialItem.className = 'form-group social-item';
-						socialItem.innerHTML = `
-							<div style="display: flex; gap: 10px;">
-								<input type="text" placeholder="Platform Name" value="${link.name || ''}" style="flex: 1;">
-								<input type="url" placeholder="URL" value="${link.url || ''}" style="flex: 2;">
-								<button type="button" class="btn remove-social-btn">×</button>
-							</div>
-						`;
-						
-						// Add event listener to remove button
-						const removeBtn = socialItem.querySelector('.remove-social-btn');
-						removeBtn.addEventListener('click', function() {
-							socialLinksContainer.removeChild(socialItem);
-						});
-						
-						socialLinksContainer.appendChild(socialItem);
+						if (link.name && link.url) { // Only add if both name and URL exist
+							const socialItem = document.createElement('div');
+							socialItem.className = 'form-group social-item';
+							socialItem.innerHTML = `
+								<div style="display: flex; gap: 10px;">
+									<input type="text" placeholder="Platform Name" value="${link.name}" style="flex: 1;">
+									<input type="url" placeholder="URL" value="${link.url}" style="flex: 2;">
+									<button type="button" class="btn remove-social-btn">×</button>
+								</div>
+							`;
+							
+							// Add event listener to remove button
+							const removeBtn = socialItem.querySelector('.remove-social-btn');
+							removeBtn.addEventListener('click', function() {
+								socialLinksContainer.removeChild(socialItem);
+							});
+							
+							socialLinksContainer.appendChild(socialItem);
+						}
 					});
 				}
 				
@@ -4409,6 +4402,7 @@ document.createElement = function(tagName) {
 						safeSetValue('site-tagline', config.site.tagline);
 						safeSetValue('site-logo', config.site.logo);
 						safeSetValue('hero-background', config.site.heroBackground);
+						safeSetValue('social-preview', config.site.socialPreview);
 						safeSetValue('show-hero-text', config.site.showHeroText === false ? 'false' : 'true');
 						safeSetValue('site-email', config.site.email);
 						safeSetValue('copyright-text', config.site.copyright);
