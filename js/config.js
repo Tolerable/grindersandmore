@@ -7,6 +7,7 @@
         "tagline": "THINGS FOR STUFF",
         "logo": "logo.jpg",
         "heroBackground": "hero-bg.jpg",
+        "socialPreview": "social-preview.jpg",
         "showHeroText": false,
         "email": "contact@grindersandmore.store",
         "socialLinks": [],
