@@ -3,18 +3,14 @@
 
 				window.siteConfig = {
     "site": {
-        "name": "Scale Forged 3D",
-        "tagline": "Making Dreams Come True",
+        "name": "GRINDERS & MORE",
+        "tagline": "THINGS FOR STUFF",
         "logo": "logo.jpg",
         "heroBackground": "hero-bg.jpg",
         "showHeroText": false,
-        "email": "contact@scaleforged3d.com",
-        "socialLinks": {
-            "discord": "https://linktr.ee/scaleforged",
-            "youtube": "https://www.youtube.com/@ScaleForged3D",
-            "tiktok": ""
-        },
-        "copyright": "© 2025 Scale Forged 3D. All rights reserved."
+        "email": "contact@grindersandmore.store",
+        "socialLinks": [],
+        "copyright": "© 2025 GrindersAndMore.store. All rights reserved."
     },
     "colors": {
         "primary": "#003b6f",
@@ -24,6 +20,10 @@
         "alert": "#ff5722",
         "background": "#0a0e17",
         "text": "#ffffff"
+    },
+    "background": {
+        "image": "",
+        "sectionImage": ""
     },
     "fonts": {
         "heading": "'Orbitron', sans-serif",
@@ -52,6 +52,12 @@
             "image": "img/floating-object.png",
             "behavior": "pulse"
         }
+    },
+    "strainTree": {
+        "enabled": false,
+        "title": "Strain Genetics Explorer",
+        "description": "Explore the genetic relationships between our strains.",
+        "dataPath": "data/straindata.json"
     },
     "about": {
         "title": "About Scale Forged",
@@ -298,6 +304,9 @@
         "checkoutMethod": "email",
         "externalCheckoutUrl": "",
         "analyticsId": "",
-        "orderEmail": "order@scaleforged3d.com"
+        "orderEmail": "orders@grindersandmore.store",
+        "enableAgeCheck": false,
+        "ageCheckMinimum": 21,
+        "ageRedirectUrl": "https://www.google.com"
     }
 };
